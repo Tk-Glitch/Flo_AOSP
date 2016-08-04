@@ -414,7 +414,6 @@ config  ARCH_MSM_KRAITMP
 	select HAVE_ARCH_HAS_CURRENT_TIMER
 	select MSM_JTAG if CORESIGHT_ETM
 	bool
-	select HAVE_HW_BRKPT_RESERVED_RW_ACCESS
 
 config  ARCH_MSM_CORTEXMP
 	select MSM_SMP
@@ -425,7 +424,6 @@ config  MSM_KRAIT_WFE_FIXUP
 
 config  ARCH_MSM_CORTEX_A5
 	bool
-	select HAVE_HW_BRKPT_RESERVED_RW_ACCESS
 
 config ARCH_MSM7X27A
 	bool
@@ -1629,6 +1627,19 @@ config MSM_CPU_FREQ_MIN
 
 endif # CPU_FREQ_MSM
 
+config CPU_VOLTAGE_TABLE
+	bool "Enable CPU Voltage Table via sysfs for adjustements"
+	default n
+	help
+	  Krait User Votlage Control 
+
+config GPU_VOLTAGE_TABLE
+	bool "Enable GPU Voltage Table via sysfs for adjustements"
+	depends on CPU_VOLTAGE_TABLE
+	default n
+	help
+	  Adreno GPU User Voltage Control 
+
 config MSM_AVS_HW
 	bool "Enable Adaptive Voltage Scaling (AVS)"
 	default n
@@ -2562,6 +2573,14 @@ config MSM_DCVS
 	  algorithm and the algorithm returns a frequency for the core which is
 	  passed to the frequency change driver.
 
+config MSM_HOTPLUG
+	bool "MSM hotplug driver"
+	depends on HOTPLUG_CPU
+	default y
+	help
+	  The MSM hotplug driver controls on-/offlining of additional cores based
+	  on current cpu load.
+
 config MSM_CPR
 	tristate "Use MSM CPR in S/W mode"
 	help
@@ -2617,5 +2636,50 @@ config MSM_CPU_PWRCTL
 	  Droop detector mechanism can adversely affect krait plls during
 	  stand alone power collapse operation. Selecting this option
 	  ensures that they are always off.
+
+config HAS_MACH_MEMUTILS
+	default y
+	bool "Motorola MSM mcmcpy enhancements"
+	help
+	  Faster memcpy performance for Krait
+
+config FORCE_FAST_CHARGE
+	bool "Force AC charge mode at will"
+	default y
+	help
+	  A simple sysfs interface to force adapters that
+	  are detected as USB to charge as AC.
+
+config UPDATE_LCDC_LUT
+	bool "Set initial Qualcomm LCDC lut"
+	default y
+	help
+	  Set initial Qualcomm LCDC Look Up Table.
+
+config LCD_KCAL
+	tristate "MSM generic LCDC Calibration"
+	default y
+	help
+	  Enable MSM generic LCDC temperature Calibration.
+
+config HAS_MACH_MEMUTILS
+	default n
+	bool "Motorola MSM mcmcpy enhancements"
+	help
+	  Faster memcpy performance for Krait
+
+config MSM_LIMITER
+	bool "MSM Frequency Limiter Driver"
+	depends on (HAS_EARLYSUSPEND)
+	default y
+	help
+	  The MSM Frequency Limiter Driver controls max frequency limit for each CPU
+	  to desired value on suspend/resume
+
+config GLITCH_CM
+	default n
+	bool "CyanogenMod compat"
+	help
+	  Enable CM compatibility for AOSP base
 
 endif

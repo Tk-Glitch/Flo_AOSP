@@ -1,0 +1,12 @@
+BB=/sbin/busybox;
+
+if [ -f $1 ]; then
+	if [[ ! -z "$2" ]]; then
+		$BB echo "$2" > $1 2> /dev/null;
+		[ -f "/sys/devices/platform/DIAG0.0/power_rail" ] && $BB echo 1 > /sys/devices/platform/DIAG0.0/power_rail_ctrl;
+	fi;
+	
+	$BB echo "`$BB cat $1`";
+else
+	$BB echo "0";
+fi;

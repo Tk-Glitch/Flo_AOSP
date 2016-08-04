@@ -38,6 +38,7 @@
 #include "acpuclock.h"
 #include "acpuclock-krait.h"
 #include "avs.h"
+#include "vdd_limits_8064.h"
 
 /* MUX source selects. */
 #define PRI_SRC_SEL_SEC_SRC	0
@@ -45,6 +46,37 @@
 #define PRI_SRC_SEL_HFPLL_DIV2	2
 
 #define SECCLKAGD		BIT(4)
+
+#define FREQ_TABLE_SIZE		47
+
+int uv_bin = 0;
+
+uint32_t arg_max_uv_clock = 384000;
+
+static int __init get_uv_level(char *vdd_uv)
+{
+	if (strcmp(vdd_uv, "0") == 0) {
+		uv_bin = 0;
+	} else if (strcmp(vdd_uv, "1") == 0) {
+		uv_bin = 1;
+	} else if (strcmp(vdd_uv, "2") == 0) {
+		uv_bin = 2;
+	} else if (strcmp(vdd_uv, "3") == 0) {
+		uv_bin = 3;
+	} else if (strcmp(vdd_uv, "4") == 0) {
+		uv_bin = 4;
+	} else if (strcmp(vdd_uv, "5") == 0) {
+		uv_bin = 5;
+	} else if (strcmp(vdd_uv, "6") == 0) {
+		uv_bin = 6;
+	} else {
+		uv_bin = 0;
+	}
+	return 0;
+}
+
+__setup("vdd_uv=", get_uv_level);
+
 
 static DEFINE_MUTEX(driver_lock);
 static DEFINE_SPINLOCK(l2_lock);
@@ -925,8 +957,50 @@ static void __init bus_init(const struct l2_level *l2_level)
 		dev_err(drv.dev, "initial bandwidth req failed (%d)\n", ret);
 }
 
+#ifdef CONFIG_CPU_VOLTAGE_TABLE
+
+ssize_t acpuclk_get_vdd_levels_str(char *buf) {
+
+	int i, len = 0;
+
+	if (buf) {
+		mutex_lock(&driver_lock);
+
+		for (i = 0; drv.acpu_freq_tbl[i].speed.khz; i++) {
+			len += sprintf(buf + len, "%8lu: %8d\n", drv.acpu_freq_tbl[i].speed.khz,
+				drv.acpu_freq_tbl[i].vdd_core );
+		}
+
+		mutex_unlock(&driver_lock);
+	}
+	return len;
+}
+
+void acpuclk_set_vdd(unsigned int khz, int vdd_uv) {
+
+	int i;
+	unsigned int new_vdd_uv;
+
+	mutex_lock(&driver_lock);
+
+	for (i = 0; drv.acpu_freq_tbl[i].speed.khz; i++) {
+		if (khz == 0)
+			new_vdd_uv = min(max((unsigned int)(drv.acpu_freq_tbl[i].vdd_core + vdd_uv),
+				(unsigned int)SC_MIN_VDD), (unsigned int)SC_MAX_VDD);
+		else if ( drv.acpu_freq_tbl[i].speed.khz == khz)
+			new_vdd_uv = min(max((unsigned int)vdd_uv,
+				(unsigned int)SC_MIN_VDD), (unsigned int)SC_MAX_VDD);
+		else 
+			continue;
+
+		drv.acpu_freq_tbl[i].vdd_core = new_vdd_uv;
+	}
+	mutex_unlock(&driver_lock);
+}
+#endif	/* CONFIG_CPU_VOTALGE_TABLE */
+
 #ifdef CONFIG_CPU_FREQ_MSM
-static struct cpufreq_frequency_table freq_table[NR_CPUS][35];
+static struct cpufreq_frequency_table freq_table[NR_CPUS][FREQ_TABLE_SIZE];
 
 static void __init cpufreq_table_init(void)
 {
@@ -1035,6 +1109,44 @@ static void krait_apply_vmin(struct acpu_level *tbl)
 	}
 }
 
+static void apply_undervolting(void)
+{
+	int i;
+
+	for (i = 0; drv.acpu_freq_tbl[i].speed.khz <= arg_max_uv_clock; i++) {
+
+	if (uv_bin == 6) {
+		drv.acpu_freq_tbl[i].vdd_core = (drv.acpu_freq_tbl[i].vdd_core - 175000);
+	        printk(KERN_INFO "[glitch]: min_voltage='%i'\n", drv.acpu_freq_tbl[i].vdd_core );
+	}
+
+	if (uv_bin == 5) {
+		drv.acpu_freq_tbl[i].vdd_core = (drv.acpu_freq_tbl[i].vdd_core - 150000);
+	        printk(KERN_INFO "[glitch]: min_voltage='%i'\n", drv.acpu_freq_tbl[i].vdd_core );
+	}
+
+	if (uv_bin == 4) {
+		drv.acpu_freq_tbl[i].vdd_core = (drv.acpu_freq_tbl[i].vdd_core - 125000);
+	        printk(KERN_INFO "[glitch]: min_voltage='%i'\n", drv.acpu_freq_tbl[i].vdd_core );
+	}
+
+	if (uv_bin == 3) {
+		drv.acpu_freq_tbl[i].vdd_core = (drv.acpu_freq_tbl[i].vdd_core - 100000);
+	        printk(KERN_INFO "[glitch]: min_voltage='%i'\n", drv.acpu_freq_tbl[i].vdd_core );
+	}
+
+	if (uv_bin == 2) {
+		drv.acpu_freq_tbl[i].vdd_core = (drv.acpu_freq_tbl[i].vdd_core - 75000);
+	        printk(KERN_INFO "[glitch]: min_voltage='%i'\n", drv.acpu_freq_tbl[i].vdd_core );
+	}
+
+	if (uv_bin == 1) {
+		drv.acpu_freq_tbl[i].vdd_core = (drv.acpu_freq_tbl[i].vdd_core - 50000);
+		printk(KERN_INFO "[glitch]: min_voltage='%i'\n", drv.acpu_freq_tbl[i].vdd_core);
+	}
+	}
+}
+
 static int __init get_speed_bin(u32 pte_efuse)
 {
 	uint32_t speed_bin;
@@ -1138,6 +1250,9 @@ static void __init hw_init(void)
 
 	if (krait_needs_vmin())
 		krait_apply_vmin(drv.acpu_freq_tbl);
+
+	if (uv_bin)
+		apply_undervolting();
 
 	l2->hfpll_base = ioremap(l2->hfpll_phys_base, SZ_32);
 	BUG_ON(!l2->hfpll_base);

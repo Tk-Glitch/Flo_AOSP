@@ -1,0 +1,108 @@
+cat << CTAG
+{
+	name:TOOLS,
+		elements:[
+			{ SPane:{
+				title:"Advanced Tools"
+			}},
+				{ SDescription:{
+					description:"Use this button to defrag/reindex all databases found in /data & /sdcard, this increases database read/write performance. NOTE: This process can take from 1-2 minutes."
+				}},
+				{ SButton:{
+					label:"Optimize Databases",
+					action:"devtools optimizedb"
+				}},
+			{ STitleBar:{
+				title:"wireless ADB",
+			}},
+			{ SLiveLabel:{
+				title: "type “adb connect <IP>” to connect adb",
+				refresh:800,
+				action:"adb get_ip"
+			}},
+			{ SButton:{
+				label:"Turn on",
+				action:"adb turnon"
+			}},
+			{ SButton:{
+				label:"Turn off",
+				action:"adb turnoff"
+			}},
+			
+			{ STitleBar:{
+				title:"Other setting"
+			}},
+			{ SDescription:{
+				description:"Clean WIFI DHCP IP Lease. Sometimes when connecting using WiFi, DHCP method will failure on Android WiFi (stuck on obtaining IP address). This option will clean the lease!",
+			}},
+			{ SButton:{
+				label:"Clean WIFI lease",
+				action:"fixdhcp"
+			}},
+			{ SDescription:{
+				description:"Reset the Battery Fuel Counter. If you suspect that Battery Counter is not showing the correct state, ask kernel for recalibration. It can't extend battery life but prevents wrong calculation of reaming energy.",
+			}},
+			{ SButton:{
+				label:"Reset battery counter",
+				action:"fixbattery"
+			}},
+			{ SPane:{
+				title:"Log Creation"
+			}},
+				`if [ -f "/sys/module/logger/parameters/enabled" ]; then
+				LOGMODE=\`$BB cat /sys/module/logger/parameters/enabled\`
+					$BB echo '{ SOptionList:{
+						title:"Log Mode",
+						description:"Allows you to toggle the log mode.",
+						default:'$LOGMODE',
+						action:"generic /sys/module/logger/parameters/enabled",
+						values:{
+							0:"Disabled", 1:"Enabled"
+						}
+					}},'
+				fi`
+				`if [ -f "/sys/module/logger/parameters/log_mode" ]; then
+				LOGMODE=\`$BB cat /sys/module/logger/parameters/log_mode\`
+					$BB echo '{ SOptionList:{
+						title:"Log Mode",
+						description:"Allows you to toggle the log mode.",
+						default:'$LOGMODE',
+						action:"generic /sys/module/logger/parameters/log_mode",
+						values:{
+							0:"Enabled", 1:"Auto Suspend", 2:"Disabled"
+						}
+					}},'
+				fi`
+			{ SDescription:{
+				description:"To report any issue with the kernel, you should share the zip file of logs created by using below button. This will put logcat, dmesg and ramoops (last_kmsg) into one zip file which will be used only for debug purposes."
+			}},
+				{ SButton:{
+					label:"Save Logs",
+					action:"devtools alllogs"
+				}},
+			{ SPane:{
+				title:"General Actions",
+				description:"To update/refresh lists, select Restart Synapse below. To clear data, select Clear Synapse Data (fixes most common issues)."
+			}},
+				{ SButton:{
+					label:"Restart Synapse",
+					action:"restorebackup restart"
+				}},
+				{ SButton:{
+					label:"Clear Synapse Data",
+					action:"devtools cleardata"
+				}},
+			{ STitleBar:{
+				title:"Reboot"
+			}},
+				{ SButton:{
+					label:"Reboot Device",
+					action:"devtools reboot"
+				}},
+				{ SButton:{
+					label:"Reboot to Recovery",
+					action:"devtools reboot recovery"
+				}},
+		]
+}
+CTAG

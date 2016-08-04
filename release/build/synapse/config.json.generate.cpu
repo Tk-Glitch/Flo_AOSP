@@ -1,0 +1,237 @@
+cat << CTAG
+{
+		name:CPU,
+			elements:[
+					{ SPane:{
+						title:"Scaling Frequency:"
+					}},
+					{ SLiveLabel:{
+						refresh:1000,
+						action:"live CPU_CUR_Freq"
+					}},
+					{ STitleBar:{
+						title:"Per-Core Frequency Control"
+					}},
+					`if [ -f "/sys/kernel/msm_limiter/resume_max_freq_0" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU0 Max Frequency",
+							description:"Set the maximum frequency the CPU scales up to.",
+							refresh:1000,
+							default:'\`$BB cat /sys/kernel/msm_limiter/resume_max_freq_0\`',
+							action:"generic /sys/kernel/msm_limiter/resume_max_freq_0",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+					`if [ -f "/sys/kernel/msm_limiter/resume_max_freq_1" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU1 Max Frequency",
+							description:"Set the maximum frequency the CPU scales up to.",
+							refresh:1000,
+							default:'\`$BB cat /sys/kernel/msm_limiter/resume_max_freq_1\`',
+							action:"generic /sys/kernel/msm_limiter/resume_max_freq_1",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+					`if [ -f "/sys/kernel/msm_limiter/resume_max_freq_2" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU2 Max Frequency",
+							description:"Set the maximum frequency the CPU scales up to.",
+							refresh:1000,
+							default:'\`$BB cat /sys/kernel/msm_limiter/resume_max_freq_2\`',
+							action:"generic /sys/kernel/msm_limiter/resume_max_freq_2",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+					`if [ -f "/sys/kernel/msm_limiter/resume_max_freq_3" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU3 Max Frequency",
+							description:"Set the maximum frequency the CPU scales up to.",
+							refresh:1000,
+							default:'\`$BB cat /sys/kernel/msm_limiter/resume_max_freq_3\`',
+							action:"generic /sys/kernel/msm_limiter/resume_max_freq_3",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+					`if [ -f "/sys/kernel/msm_limiter/suspend_min_freq_0" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU0 Min Frequency",
+							description:"Set the minimum frequency the CPU scales up to.",
+							refresh:1000,
+							default:'\`$BB cat /sys/kernel/msm_limiter/suspend_min_freq_0\`',
+							action:"generic /sys/kernel/msm_limiter/suspend_min_freq_0",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+					`if [ -f "/sys/kernel/msm_limiter/suspend_min_freq_1" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU1 Min Frequency",
+							description:"Set the minimum frequency the CPU scales up to.",
+							refresh:1000,
+							default:'\`$BB cat /sys/kernel/msm_limiter/suspend_min_freq_1\`',
+							action:"generic /sys/kernel/msm_limiter/suspend_min_freq_1",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+					`if [ -f "/sys/kernel/msm_limiter/suspend_min_freq_2" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU2 Min Frequency",
+							description:"Set the minimum frequency the CPU scales up to.",
+							refresh:1000,
+							default:'\`$BB cat /sys/kernel/msm_limiter/suspend_min_freq_2\`',
+							action:"generic /sys/kernel/msm_limiter/suspend_min_freq_2",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+					`if [ -f "/sys/kernel/msm_limiter/suspend_min_freq_3" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU3 Min Frequency",
+							description:"Set the minimum frequency the CPU scales up to.",
+							refresh:1000,
+							default:'\`$BB cat /sys/kernel/msm_limiter/suspend_min_freq_3\`',
+							action:"generic /sys/kernel/msm_limiter/suspend_min_freq_3",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+					{ STitleBar:{
+						title:"Maximum suspend frequency Control"
+					}},
+					`if [ -f "/sys/kernel/msm_limiter/suspend_max_freq" ]; then
+						$BB echo '{ SSeekBar:{
+							title:"CPU Suspend Max Frequency",
+							description:"Set the maximum frequency the CPU scales up to on suspend.",
+							default:'\`$BB cat /sys/kernel/msm_limiter/suspend_max_freq\`',
+							action:"generic /sys/kernel/msm_limiter/suspend_max_freq",
+							values:{'
+								sh $DEVICE CPUFrequencyList
+							$BB echo '}
+						}},'
+					fi`
+				`if [ -f "/sys/devices/system/cpu/sched_mc_power_savings" ]; then
+				SMPS=\`$BB cat /sys/devices/system/cpu/sched_mc_power_savings\`
+					$BB echo '{ SPane:{
+						title:"CPU Multicore Power Saving",
+						description:"Try to group tasks into the least cores possible. The higher the value, the more aggressive the grouping."
+					}},
+					{ SOptionList:{
+						default:'$SMPS',
+						action:"generic /sys/devices/system/cpu/sched_mc_power_savings",
+						values:{ 0:"Disabled", 1:"Enabled", 2:"Aggressive"
+						}
+					}},'
+				fi`
+				`if [ -f "/sys/module/workqueue/parameters/power_efficient" ]; then
+				PE=\`bool /sys/module/workqueue/parameters/power_efficient\`
+					$BB echo '{ SPane:{
+						title:"Power-efficient Workqueues",
+					}},
+						{ SCheckBox:{
+							label:"Enable",
+							description:"This will help to reduce power consumption at the cost of slight performance overhead. PE workqueues are used for unbound scheduled work to save load on sibling CPU cores and queuing work on CPU0.",
+							default:'$PE',
+							action:"boolean /sys/module/workqueue/parameters/power_efficient",
+						}},'
+				fi`
+			`[ -d "/sys/module/pm_8x60" ] && PM=/sys/module/pm_8x60;
+			[ -d "/sys/module/msm_pm" ] && PM=/sys/module/msm_pm;
+			
+			if [ -d "$PM/modes/cpu0" ]; then
+				$BB echo '{ SPane:{
+					title:"Krait C-States Settings"
+				}},'
+				if [ -f "$PM/modes/cpu0/wfi/idle_enabled" ]; then
+				C0=\`$BB cat $PM/modes/cpu0/wfi/idle_enabled\`;
+					$BB echo '{ SCheckBox:{
+						description:"Shallowest Sleep with instant wake up.",
+						label:"C0 (WFI)",
+						default:'$C0',
+						action:"socset '$PM'/modes/cpu0/wfi/idle_enabled wfi"
+					}},'
+				fi
+				if [ -f "$PM/modes/cpu0/retention/idle_enabled" ]; then
+				C1=\`$BB cat $PM/modes/cpu0/retention/idle_enabled\`;
+					$BB echo '{ SCheckBox:{
+						description:"Slightly deeper sleep with slight latency when waking up. (Disable this if you encounter screen flickering)",
+						label:"C1 (Retention)",
+						default:'$C1',
+						action:"socset '$PM'/modes/cpu0/retention/idle_enabled retention"
+					}},'
+				fi
+				if [ -f "$PM/modes/cpu0/standalone_power_collapse/idle_enabled" ]; then
+				C2=\`$BB cat $PM/modes/cpu0/standalone_power_collapse/idle_enabled\`;
+					$BB echo '{ SCheckBox:{
+						description:"Deeper sleep with longer latency when waking up.",
+						label:"C2 (Stand Alone Power Collapse)",
+						default:'$C2',
+						action:"socset '$PM'/modes/cpu0/standalone_power_collapse/idle_enabled standalone_power_collapse"
+					}},'
+				fi
+				if [ -f "$PM/modes/cpu0/power_collapse/idle_enabled" ]; then
+				C3=\`$BB cat $PM/modes/cpu0/power_collapse/idle_enabled\`;
+					$BB echo '{ SCheckBox:{
+						description:"Really deep sleep with longest latency when waking up.",
+						label:"C3 (Power Collapse)",
+						default:'$C3',
+						action:"socset '$PM'/modes/cpu0/power_collapse/idle_enabled power_collapse"
+					}},'
+				fi
+			fi`
+			{ SPane:{
+				title:"CPU Governor",
+				description:"The CPU governor determines how the respective CPU behaves in response to changes in workload. Changing the governor will impact how the CPU scales through the frequency steps available. WIKI: <a href='http://timos.me/tm/wiki/cpugovernors'>HERE</a>"
+			}},
+				`if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor" ]; then
+					$BB echo '{ SOptionList:{
+						title:"CPU Governor",
+						default:'\`$BB cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\`',
+						action:"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+						values:['
+							sh $DEVICE CPUGovernorList
+						$BB echo '],
+					}},'
+				fi`
+			{ SPane:{
+				title:"Governor tunables"
+			}},
+				{ STreeDescriptor:{
+					path:"`sh $DEVICE DirCPUGovernorTree`",
+					generic: {
+						directory: {
+							STreeDescriptor:{
+								generic: {
+									directory: {},
+									element: {
+										SGeneric: { title:"@BASENAME" }
+									}
+								},
+								exclude: [ 
+									"boost_duration", "boostpulse", "cpu_utilization", "multi_phase_freq_tbl", "profile",
+									"up_threshold_h", "up_threshold_l", "version_profiles", "sampling_rate_current", "freq_limit",
+									"music_state", "inputboost_punch_cycles", "inputboost_punch_freq", "inputboost_punch_on_epenmove",
+									"inputboost_punch_on_fingerdown", "inputboost_punch_on_fingermove", "auto_adjust_freq_thresholds",
+									"version", "early_demand", "fast_scaling_up", "fast_scaling_down", "fast_scaling_sleep_up", "fast_scaling_sleep_down"
+									"scaling_up_block_freq", "scaling_block_freq", "inputboost_typingbooster_cores", "music_max_freq", "music_min_freq"
+								]
+							},
+						}
+					},
+					exclude: [ "all_cpus", "kset", "overall_stats", "stats", "vdd_table" ]
+				}},
+		]
+}
+CTAG

@@ -1,0 +1,43 @@
+BB=/sbin/busybox;
+
+ip=`$BB ifconfig wlan0 | grep "inet addr:" | sed 's/ //' | sed 's/.*inet addr://' | sed 's/Bcast.*//'`;
+
+getip()
+{
+	state=`getprop service.adb.tcp.port`;
+	if [ "${state}" != "5555" ] ;then
+		echo "Wireless ADB server is not running";
+	else
+		echo "Wireless ADB server is running @nIP:${ip}";
+	fi
+}
+
+adb_turnon()
+{
+	setprop service.adb.tcp.port 5555;
+	stop adbd;
+	start adbd;
+	echo "type ADB connect ${ip} to connect";
+	exit;
+}
+
+adb_turnoff()
+{
+	setprop service.adb.tcp.port -1;
+	stop adbd;
+	start adbd;
+	echo "Wireless ADB turn off";
+	exit;
+}
+
+case $1 in 
+	get_ip)
+	getip;
+	;;	
+	turnon)
+	adb_turnon;
+	;;
+	turnoff)
+	adb_turnoff;
+	;;
+esac;

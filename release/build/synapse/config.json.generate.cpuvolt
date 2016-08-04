@@ -1,0 +1,26 @@
+cat << CTAG
+{
+	name:CPU VOLT,
+		elements:[
+			`if [ -f "/sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels" ]; then
+				$BB echo '{ SPane:{
+					title:"CPU Frequency Voltage",
+					description:"Decreasing voltages will lower heat and power consumption of the CPU. Increasing it on overclocked frequencies improves stability. Too low voltages may cause instability and freezes."
+				}},'
+					while read CPUFREQ VOLT; do
+					CPUFREQ=\`$BB echo $CPUFREQ | $BB sed "s/://"\`
+					LABEL=$((CPUFREQ / 1000))
+						$BB echo '{ SSeekBar:{
+								title:"'${LABEL}' MHz",
+								default:'$VOLT',
+								action:"cpuvolt '$CPUFREQ'",
+								unit:" uV",
+								min:600000,
+								max:1400000,
+								step:500
+							}},'
+						done < /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels
+			fi`
+		]
+}
+CTAG

@@ -1,0 +1,132 @@
+#!/sbin/busybox sh
+BB=/sbin/busybox;
+command_fo=/data/synapse/actions;
+
+get_0()
+{
+	#cpu
+	cpu_max_freq=1350000;
+	cpu_min_freq=81000;
+	max_cpus_online=3;
+	power_efficient=Y;
+	
+	#gpu
+	gpu_max_freq=200000000;
+	
+	#thermal
+	temp_threshold=55;
+}
+
+get_1()
+{	
+	#cpu
+	cpu_max_freq=1512000;
+	cpu_min_freq=384000;
+	max_cpus_online=4;
+	power_efficient=Y;
+
+	#gpu
+	gpu_max_freq=400000000;
+	
+	#thermal
+	temp_threshold=65;
+}
+
+get_2()
+{	
+	#cpu
+	cpu_max_freq=1728000;
+	cpu_min_freq=81000;
+	max_cpus_online=4;
+	power_efficient=N;
+
+	#gpu
+	gpu_max_freq=504000000;
+	
+	#thermal
+	temp_threshold=70;
+}
+
+get_3()
+{
+	#cpu
+	cpu_max_freq=1890000;
+	cpu_min_freq=81000;
+	max_cpus_online=4;
+	power_efficient=N;
+
+	#gpu
+	gpu_max_freq=600000000;
+	
+	#thermal
+	temp_threshold=75;
+}
+
+get_4()
+{	
+	#cpu
+	cpu_max_freq=2052000;
+	cpu_min_freq=81000;
+	max_cpus_online=4;
+	power_efficient=N;
+
+	#gpu
+	gpu_max_freq=627000000;
+	
+	#thermal
+	temp_threshold=80;
+}
+
+flash_synapse()
+{
+	am force-stop com.af.synapse 2> /dev/null;
+	sleep 1;
+	am start -a android.intent.action.MAIN -n com.af.synapse/.MainActivity 2> /dev/null;
+}
+
+wr_sys()
+{
+	echo "${2}" > ${1};
+}
+
+set_mode()
+{	
+	#cpu
+	wr_sys /sys/kernel/msm_limiter/resume_max_freq ${cpu_max_freq};
+	wr_sys /sys/kernel/msm_limiter/suspend_min_freq ${cpu_min_freq};
+	wr_sys /sys/module/workqueue/parameters/power_efficient ${power_efficient};
+	wr_sys /sys/kernel/msm_mpdecision/conf/enabled 0;
+	wr_sys /sys/module/msm_hotplug/msm_enabled 1;
+	wr_sys /sys/module/msm_hotplug/max_cpus_online ${max_cpus_online};
+	
+	#gpu
+	wr_sys /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/max_gpuclk;
+	
+	#thermal
+	wr_sys /sys/module/msm_thermal/parameters/temp_threshold ${temp_threshold};
+
+	flash_synapse;
+}
+
+case $1 in 
+	p0)
+		get_p0;
+		set_mode;
+	;;	
+	p1)
+		get_p1;
+		set_mode;
+	;;
+	p2)
+		get_p2;
+		set_mode;
+	;;
+	p3)
+		get_p3;
+		set_mode;
+	;;
+	p4)
+		get_p4;
+		set_mode;
+	;;
+esac;

@@ -1,0 +1,6 @@
+BB=/sbin/busybox;
+
+caches=/proc/sys/vm/drop_caches;
+	$BB sync;
+	$BB echo 3 > /proc/sys/vm/drop_caches 2> /dev/null &
+	$BB echo "Cache droped"

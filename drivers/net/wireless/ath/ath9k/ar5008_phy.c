@@ -1047,45 +1047,7 @@ static bool ar5008_hw_ani_control_old(struct ath_hw *ah,
 		break;
 	}
 	case ATH9K_ANI_OFDM_WEAK_SIGNAL_DETECTION:{
-		static const int m1ThreshLow[] = { 127, 50 };
-		static const int m2ThreshLow[] = { 127, 40 };
-		static const int m1Thresh[] = { 127, 0x4d };
-		static const int m2Thresh[] = { 127, 0x40 };
-		static const int m2CountThr[] = { 31, 16 };
-		static const int m2CountThrLow[] = { 63, 48 };
 		u32 on = param ? 1 : 0;
-
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR_LOW,
-			      AR_PHY_SFCORR_LOW_M1_THRESH_LOW,
-			      m1ThreshLow[on]);
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR_LOW,
-			      AR_PHY_SFCORR_LOW_M2_THRESH_LOW,
-			      m2ThreshLow[on]);
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR,
-			      AR_PHY_SFCORR_M1_THRESH,
-			      m1Thresh[on]);
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR,
-			      AR_PHY_SFCORR_M2_THRESH,
-			      m2Thresh[on]);
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR,
-			      AR_PHY_SFCORR_M2COUNT_THR,
-			      m2CountThr[on]);
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR_LOW,
-			      AR_PHY_SFCORR_LOW_M2COUNT_THR_LOW,
-			      m2CountThrLow[on]);
-
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR_EXT,
-			      AR_PHY_SFCORR_EXT_M1_THRESH_LOW,
-			      m1ThreshLow[on]);
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR_EXT,
-			      AR_PHY_SFCORR_EXT_M2_THRESH_LOW,
-			      m2ThreshLow[on]);
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR_EXT,
-			      AR_PHY_SFCORR_EXT_M1_THRESH,
-			      m1Thresh[on]);
-		REG_RMW_FIELD(ah, AR_PHY_SFCORR_EXT,
-			      AR_PHY_SFCORR_EXT_M2_THRESH,
-			      m2Thresh[on]);
 
 		if (on)
 			REG_SET_BIT(ah, AR_PHY_SFCORR_LOW,
@@ -1094,12 +1056,12 @@ static bool ar5008_hw_ani_control_old(struct ath_hw *ah,
 			REG_CLR_BIT(ah, AR_PHY_SFCORR_LOW,
 				    AR_PHY_SFCORR_LOW_USE_SELF_CORR_LOW);
 
-		if (!on != aniState->ofdmWeakSigDetectOff) {
+		if (on != aniState->ofdmWeakSigDetect) {
 			if (on)
 				ah->stats.ast_ani_ofdmon++;
 			else
 				ah->stats.ast_ani_ofdmoff++;
-			aniState->ofdmWeakSigDetectOff = !on;
+			aniState->ofdmWeakSigDetect = on;
 		}
 		break;
 	}
@@ -1166,10 +1128,10 @@ static bool ar5008_hw_ani_control_old(struct ath_hw *ah,
 
 	ath_dbg(common, ANI, "ANI parameters:\n");
 	ath_dbg(common, ANI,
-		"noiseImmunityLevel=%d, spurImmunityLevel=%d, ofdmWeakSigDetectOff=%d\n",
+		"noiseImmunityLevel=%d, spurImmunityLevel=%d, ofdmWeakSigDetect=%d\n",
 		aniState->noiseImmunityLevel,
 		aniState->spurImmunityLevel,
-		!aniState->ofdmWeakSigDetectOff);
+		aniState->ofdmWeakSigDetect);
 	ath_dbg(common, ANI,
 		"cckWeakSigThreshold=%d, firstepLevel=%d, listenTime=%d\n",
 		aniState->cckWeakSigThreshold,
@@ -1258,18 +1220,18 @@ static bool ar5008_hw_ani_control_new(struct ath_hw *ah,
 			REG_CLR_BIT(ah, AR_PHY_SFCORR_LOW,
 				    AR_PHY_SFCORR_LOW_USE_SELF_CORR_LOW);
 
-		if (!on != aniState->ofdmWeakSigDetectOff) {
+		if (on != aniState->ofdmWeakSigDetect) {
 			ath_dbg(common, ANI,
 				"** ch %d: ofdm weak signal: %s=>%s\n",
 				chan->channel,
-				!aniState->ofdmWeakSigDetectOff ?
+				aniState->ofdmWeakSigDetect ?
 				"on" : "off",
 				on ? "on" : "off");
 			if (on)
 				ah->stats.ast_ani_ofdmon++;
 			else
 				ah->stats.ast_ani_ofdmoff++;
-			aniState->ofdmWeakSigDetectOff = !on;
+			aniState->ofdmWeakSigDetect = on;
 		}
 		break;
 	}
@@ -1419,7 +1381,7 @@ static bool ar5008_hw_ani_control_new(struct ath_hw *ah,
 	ath_dbg(common, ANI,
 		"ANI parameters: SI=%d, ofdmWS=%s FS=%d MRCcck=%s listenTime=%d ofdmErrs=%d cckErrs=%d\n",
 		aniState->spurImmunityLevel,
-		!aniState->ofdmWeakSigDetectOff ? "on" : "off",
+		aniState->ofdmWeakSigDetect ? "on" : "off",
 		aniState->firstepLevel,
 		!aniState->mrcCCKOff ? "on" : "off",
 		aniState->listenTime,
@@ -1508,7 +1470,7 @@ static void ar5008_hw_ani_cache_ini_regs(struct ath_hw *ah)
 	/* these levels just got reset to defaults by the INI */
 	aniState->spurImmunityLevel = ATH9K_ANI_SPUR_IMMUNE_LVL_NEW;
 	aniState->firstepLevel = ATH9K_ANI_FIRSTEP_LVL_NEW;
-	aniState->ofdmWeakSigDetectOff = !ATH9K_ANI_USE_OFDM_WEAK_SIG;
+	aniState->ofdmWeakSigDetect = ATH9K_ANI_USE_OFDM_WEAK_SIG;
 	aniState->mrcCCKOff = true; /* not available on pre AR9003 */
 }
 

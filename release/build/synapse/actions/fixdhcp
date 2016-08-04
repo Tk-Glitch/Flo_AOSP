@@ -1,0 +1,6 @@
+BB=/sbin/busybox;
+
+	svc wifi disable;
+	rm -f /data/misc/dhcp/dhcpcd*;
+	svc wifi enable;
+	$BB echo "WIFI DHCP date Cleaned"

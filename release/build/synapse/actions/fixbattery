@@ -1,0 +1,5 @@
+BB=/sbin/busybox;
+
+$BB echo "reset" > /sys/bus/i2c/devices/0-0036/fuelrst;
+$BB echo "Reset battery counter successd";
+	

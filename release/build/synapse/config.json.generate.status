@@ -1,0 +1,78 @@
+#!/sbin/busybox sh
+
+cat << CTAG
+{
+	name:SYSTEM STATUS,
+		elements:[
+			{ SPane:{
+				title:"Donate to Tk-Glitch",
+				description:"<a href='https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=Ti3noU%40gmail%2ecom&lc=FR&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted'>Donate to me with Paypal</a>"
+				}},
+			{ SPane:{
+				title:"System information",
+				description:"`$BB cat /proc/version`"
+			}},
+			{ STitleBar:{
+					title:,
+			}},
+			{ SLiveLabel:{
+				title: "CPU frequency information",
+				refresh:2000,
+				action:"live CPU_MAX_MIN_Freq"
+			}},
+			{ SLiveLabel:{
+				title: "Current CPU frequency",
+				refresh:2000,
+				action:"live CPU_CUR_Freq"
+			}},
+			{ SLiveLabel:{
+				title:"Current CPU governor",
+				refresh:8000,
+				action:"live DefaultCPUGovernor"
+			}},
+			{ SLiveLabel:{
+				title:"Current CPU hotplug",
+				refresh:8000,
+				action:"live CPU_HOTPLUG"
+			}},
+			{ SLiveLabel:{
+				title:"CPU temperature:",
+				refresh:3000,
+				action:"live CPUTemperature"
+			}},
+			{ SLiveLabel:{
+				title:"Battery temperature:",
+				refresh:3000,
+				action:"live BatteryTemperature"
+			}},
+			{ SLiveLabel:{
+				title:"Memory status:",
+				refresh:3000,
+				action:"live Memory"
+			}},
+			{ SLiveLabel:{
+				title:"Frequency times:",
+				refresh:5000,
+				action:"live UpTime"
+			}},
+			{ SLiveLabel:{
+				title:"UnUsed frequency:",
+				refresh:5000,
+				action:"live UnUsed"
+			}},
+			{ SLiveLabel:{
+				title:"Time in States:",
+				refresh:5000,
+				action:"live Time 0 9"
+			}},
+			{ SLiveLabel:{
+				refresh:5000,
+				action:"live Time 10 19"
+			}},
+			{ SLiveLabel:{
+				refresh:5000,
+				action:"live Time 20 20"
+			}},
+		]
+}
+CTAG
