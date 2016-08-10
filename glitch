@@ -29,7 +29,8 @@ setup ()
 {
 
 if [ ! -f arch/arm/configs/Glitch_$target_name"_defconfig" ] ; then
-echo "Glitch defconfig missing. Creating one for regular build and another for CM......"
+echo "Glitch defconfig missing. Creating copies of original target defconfig for regular and CM. Edit these instead of default one!"
+echo "-----------------------------------------------------------------------------------------------------------------------------"
 cp arch/arm/configs/$target_name"_defconfig" arch/arm/configs/Glitch_$target_name"_defconfig"
 cp arch/arm/configs/$target_name"_defconfig" arch/arm/configs/Glitch_CM_$target_name"_defconfig"
 echo "done"
@@ -228,9 +229,11 @@ if [ "$1" = clean ] ; then
     cd $KERNEL_DIR
     rm -f $KERNEL_DIR/tmp_$target_defconfig
     rm -f arch/arm/configs/release_$target_defconfig
-    echo "-----------------------------"
-    echo "Previous build folder cleaned"
-    echo "-----------------------------"
+    rm -f $KERNEL_DIR/tmp_$target_defconfig
+    rm -f $KERNEL_DIR/arch/arm/configs/release_$target_defconfig
+    echo "-----------------------------------"
+    echo "Build folder and temp files cleaned"
+    echo "-----------------------------------"
 
 else
 
