@@ -1,7 +1,22 @@
 cat << CTAG
 {
-	name:GAMMA,
+	name:DISPLAY,
 		elements:[
+			`if [ -d "/sys/devices/platform/DIAG0.0" ]; then
+				if [ -f "/sys/devices/platform/DIAG0.0/power_rail" ]; then
+				KCAL=\`$BB cat /sys/devices/platform/DIAG0.0/power_rail\`;
+					$BB echo '{ SPane:{
+						title:"Display Tuning",
+					}},
+						{ SGeneric:{
+							title:"RGB colors tuning",
+							description:"Here you can set the values of RGB channel. range 0-255",
+							default:'$KCAL',
+							action:"gamma /sys/devices/platform/DIAG0.0/power_rail",
+						}},'
+				fi
+				fi
+			fi`
 			`if [ -d "/sys/devices/platform/kcal_ctrl.0" ]; then
 				if [ -f "/sys/devices/platform/kcal_ctrl.0/kcal_enable" ]; then
 				KCALE=\`$BB cat /sys/devices/platform/kcal_ctrl.0/kcal_enable\`;
