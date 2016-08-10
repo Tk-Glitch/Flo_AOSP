@@ -50,7 +50,7 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin/fstrim");
 set_perm_recursive(0, 0, 0755, 0755, "/data/synapse");
 set_perm(0, 0, 0755, "/system/xbin/uci");
 
-ui_print("Pray Cthulhu to get your settings backup in place...");
+ui_print("Praying Cthulhu to get your settings backup in place...");
 run_program("/tmp/busybox", "cp", "/sdcard/glitch-settings.conf", "/system/etc/glitch-settings.conf");
 set_perm(0, 0, 0666, "/system/etc/glitch-settings.conf");
 
@@ -96,4 +96,4 @@ run_program("/tmp/busybox", "umount", "/system");
 
 ui_print("");
 set_progress(1.0);
-ui_print("Finished!");
+ui_print("Done!");
