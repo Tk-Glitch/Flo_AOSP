@@ -89,9 +89,9 @@ cat << CTAG
 						action:"boolean /sys/module/adreno_idler/parameters/adreno_idler_active"
 					}},'
 			fi`
-			`if [ -f "/sys/devices/system/cpu/cpu0/cpufreq/gpu_mv_table" ]; then
+			`if [ -f "/sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels_GPU" ]; then
 				$BB echo '{ SPane:{
-					title:"GPU Voltages"
+					title:"GPU Voltages for low, nominal and high steps"
 				}},'
 					while read UVOLT UNIT; do
 					VOLTAGE=$(($VOLTAGE+1));
@@ -105,7 +105,7 @@ cat << CTAG
 							else
 								$BB echo 'min:900, max:1200, step:5 }},'
 							fi;
-					done < /sys/devices/system/cpu/cpu0/cpufreq/gpu_mv_table
+					done < /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels_GPU
 			fi`
 		]
 }
