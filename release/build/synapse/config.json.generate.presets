@@ -11,35 +11,35 @@ cat << CTAG
 				}},
 				{ SButton:{
 					label:"Power saving",
-					action:"mode p0"
+					action:"presets p0"
 				}},
 				{ SDescription:{
 					description:"Battery friendly. May be too slow for gaming or high quality video playback. 1.35GHz Max CPU clock, 81MHz Min CPU clock - 200MHz GPU clock - 55C° temp threshold",
 				}},
 				{ SButton:{
 					label:"Stock",
-					action:"mode p1"
+					action:"presets p1"
 				}},
 				{ SDescription:{
 					description:"Stock. 1.51GHz Max CPU clock, 384MHz Min CPU clock - 400MHz GPU clock - 65C° temp threshold",
 				}},
 				{ SButton:{
 					label:"Improved",
-					action:"mode p2"
+					action:"presets p2"
 				}},
 				{ SDescription:{
 					description:"Improved stock (default). Fast and well balanced for day to day usage. 1.73GHz Max CPU clock, 81MHz Min CPU clock - 504MHz GPU clock - 70C° temp threshold",
 				}},
 				{ SButton:{
 					label:"Fast",
-					action:"mode p3"
+					action:"presets p3"
 				}},
 				{ SDescription:{
 					description:"Faster, hotter and less battery friendly. May be unstable on some devices. 1.89GHz Max CPU clock, 81MHz Min CPU clock - 600MHz GPU clock - 75C° temp threshold",
 				}},
 				{ SButton:{
 					label:"Glitchy",
-					action:"mode p4"
+					action:"presets p4"
 				}},
 				{ SDescription:{
 					description:"Very fast.. As long as you're not hitting the thermal throttling ! May be unstable on many devices. 2.05GHz Max CPU clock, 81MHz Min CPU clock - 627MHz GPU clock - 80C° temp threshold",

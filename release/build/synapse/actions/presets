@@ -1,6 +1,5 @@
 #!/sbin/busybox sh
 BB=/sbin/busybox;
-command_fo=/data/synapse/actions;
 
 get_0()
 {
@@ -89,13 +88,19 @@ wr_sys()
 	echo "${2}" > ${1};
 }
 
-set_mode()
+set_preset()
 {	
 	#cpu
-	wr_sys /sys/kernel/msm_limiter/resume_max_freq ${cpu_max_freq};
-	wr_sys /sys/kernel/msm_limiter/suspend_min_freq ${cpu_min_freq};
+	wr_sys /sys/kernel/msm_limiter/resume_max_freq_0 ${cpu_max_freq};
+	wr_sys /sys/kernel/msm_limiter/resume_max_freq_1 ${cpu_max_freq};
+	wr_sys /sys/kernel/msm_limiter/resume_max_freq_2 ${cpu_max_freq};
+	wr_sys /sys/kernel/msm_limiter/resume_max_freq_3 ${cpu_max_freq};
+	wr_sys /sys/kernel/msm_limiter/suspend_min_freq_0 ${cpu_min_freq};
+	wr_sys /sys/kernel/msm_limiter/suspend_min_freq_1 ${cpu_min_freq};
+	wr_sys /sys/kernel/msm_limiter/suspend_min_freq_2 ${cpu_min_freq};
+	wr_sys /sys/kernel/msm_limiter/suspend_min_freq_3 ${cpu_min_freq};
 	wr_sys /sys/module/workqueue/parameters/power_efficient ${power_efficient};
-	wr_sys /sys/kernel/msm_mpdecision/conf/enabled 0;
+	wr_sys /sys/module/msm_mpdecision/parameters/enabled 0;
 	wr_sys /sys/module/msm_hotplug/msm_enabled 1;
 	wr_sys /sys/module/msm_hotplug/max_cpus_online ${max_cpus_online};
 	
@@ -111,22 +116,22 @@ set_mode()
 case $1 in 
 	p0)
 		get_p0;
-		set_mode;
+		set_preset;
 	;;	
 	p1)
 		get_p1;
-		set_mode;
+		set_preset;
 	;;
 	p2)
 		get_p2;
-		set_mode;
+		set_preset;
 	;;
 	p3)
 		get_p3;
-		set_mode;
+		set_preset;
 	;;
 	p4)
 		get_p4;
-		set_mode;
+		set_preset;
 	;;
 esac;

@@ -21,9 +21,6 @@ case $1 in
 	BatteryTemperature)
 		$BB echo `sh $DEVICE LiveBatteryTemperature`;
 	;;
-	Thermalzone)
-		$BB echo `sh $DEVICE Thermalzone`;
-	;;
 	CPUFrequency)
 		$BB echo `sh $DEVICE LiveCPUFrequency`;
 	;;
