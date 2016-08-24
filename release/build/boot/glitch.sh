@@ -25,10 +25,7 @@ MAXF0=`grep "MAXF_CPU0" $KERNEL_CONF | cut -d '=' -f2`
 MAXF1=`grep "MAXF_CPU1" $KERNEL_CONF | cut -d '=' -f2`
 MAXF2=`grep "MAXF_CPU2" $KERNEL_CONF | cut -d '=' -f2`
 MAXF3=`grep "MAXF_CPU3" $KERNEL_CONF | cut -d '=' -f2`
-echo $MAXF0 > /sys/kernel/msm_limiter/resume_max_freq_0;
-echo $MAXF1 > /sys/kernel/msm_limiter/resume_max_freq_1;
-echo $MAXF2 > /sys/kernel/msm_limiter/resume_max_freq_2;
-echo $MAXF3 > /sys/kernel/msm_limiter/resume_max_freq_3;
+echo "0:$MAXF0 1:$MAXF1 2:$MAXF2 3:$MAXF3" > /sys/kernel/msm_limiter/live_max_freq;
 echo Max CPU0 Frequency: $MAXF0 >> $KERNEL_LOGFILE;
 echo Max CPU1 Frequency: $MAXF1 >> $KERNEL_LOGFILE;
 echo Max CPU2 Frequency: $MAXF2 >> $KERNEL_LOGFILE;
@@ -36,30 +33,27 @@ echo Max CPU3 Frequency: $MAXF3 >> $KERNEL_LOGFILE;
 
 #Min CPU_FREQ
 MINF=`grep "MINF" $KERNEL_CONF | cut -d '=' -f2`
-echo $MINF > /sys/kernel/msm_limiter/suspend_min_freq_0; 
-echo $MINF > /sys/kernel/msm_limiter/suspend_min_freq_1;
-echo $MINF > /sys/kernel/msm_limiter/suspend_min_freq_2;
-echo $MINF > /sys/kernel/msm_limiter/suspend_min_freq_3;
+echo "0:$MINF 1:$MINF 2:$MINF 3:$MINF" > /sys/kernel/msm_limiter/live_min_freq;
 echo Min CPU Frequency: $MINF >> $KERNEL_LOGFILE;
 
 #Max suspend CPU_FREQ
 if [ "`grep SCROFF=1 $KERNEL_CONF`" ]; then
-  echo 594000 > /sys/kernel/msm_limiter/suspend_max_freq;
+  echo "0:594000 1:594000 2:594000 3:594000" > /sys/kernel/msm_limiter/suspend_max_freq;
   echo 594MHz max screen off >> $KERNEL_LOGFILE;
 elif [ "`grep SCROFF=2 $KERNEL_CONF`" ]; then
-  echo 702000 > /sys/kernel/msm_limiter/suspend_max_freq;
+  echo "0:702000 1:702000 2:702000 3:702000" > /sys/kernel/msm_limiter/suspend_max_freq;
   echo 702MHz max screen off >> $KERNEL_LOGFILE;
 elif [ "`grep SCROFF=3 $KERNEL_CONF`" ]; then
-  echo 810000 > /sys/kernel/msm_limiter/suspend_max_freq;
+  echo "0:810000 1:810000 2:810000 3:810000" > /sys/kernel/msm_limiter/suspend_max_freq;
   echo 810MHz max screen off >> $KERNEL_LOGFILE;
 elif [ "`grep SCROFF=4 $KERNEL_CONF`" ]; then
-  echo 1026000 > /sys/kernel/msm_limiter/suspend_max_freq;
+  echo "0:1026000 1:1026000 2:1026000 3:1026000" > /sys/kernel/msm_limiter/suspend_max_freq;
   echo 1026MHz max screen off >> $KERNEL_LOGFILE;
 elif [ "`grep SCROFF=5 $KERNEL_CONF`" ]; then
-  echo 1242000 > /sys/kernel/msm_limiter/suspend_max_freq;
+  echo "0:1242000 1:1242000 2:1242000 3:1242000" > /sys/kernel/msm_limiter/suspend_max_freq;
   echo 1242MHz max screen off >> $KERNEL_LOGFILE;
 else
-  echo 1512000 > /sys/kernel/msm_limiter/suspend_max_freq;
+  echo "0:1512000 1:1512000 2:1512000 3:1512000" > /sys/kernel/msm_limiter/suspend_max_freq;
   echo max screen off freq set to stock CPU speed >> $KERNEL_LOGFILE;
 fi
 
@@ -188,11 +182,23 @@ fstrim -v /data | tee -a $KERNEL_LOGFILE;
 
 #thermal settings
 if [ "`grep THERM=1 $KERNEL_CONF`" ]; then
-  echo 80,82,90,100 > /sys/module/msm_thermal/parameters/limit_temp_degC;
+  echo 65 > /sys/module/msm_thermal/parameters/limit_temp_degC;
+  echo 75 > /sys/module/msm_thermal/parameters/core_limit_temp_degC;
+  echo 15 > /sys/module/msm_thermal/parameters/freq_control_mask;
+  echo 14 > /sys/module/msm_thermal/parameters/core_control_mask;
   echo run cool >> $KERNEL_LOGFILE;
 elif [ "`grep THERM=2 $KERNEL_CONF`" ]; then
-  echo 85,90,97,105 > /sys/module/msm_thermal/parameters/limit_temp_degC;
+  echo 80 > /sys/module/msm_thermal/parameters/limit_temp_degC;
+  echo 90 > /sys/module/msm_thermal/parameters/core_limit_temp_degC;
+  echo 15 > /sys/module/msm_thermal/parameters/freq_control_mask;
+  echo 14 > /sys/module/msm_thermal/parameters/core_control_mask;
   echo run hot >> $KERNEL_LOGFILE;
+else
+  echo 70 > /sys/module/msm_thermal/parameters/limit_temp_degC;
+  echo 80 > /sys/module/msm_thermal/parameters/core_limit_temp_degC;
+  echo 15 > /sys/module/msm_thermal/parameters/freq_control_mask;
+  echo 14 > /sys/module/msm_thermal/parameters/core_control_mask;
+  echo run warm >> $KERNEL_LOGFILE;
 fi
 
 #GPU Clock settings
