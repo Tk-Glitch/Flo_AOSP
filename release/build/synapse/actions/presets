@@ -14,6 +14,9 @@ get_0()
 	
 	#thermal
 	temp_threshold=55;
+	temp_threshold2=75;
+	temp_control=15;
+	temp_control2=14;
 }
 
 get_1()
@@ -29,6 +32,9 @@ get_1()
 	
 	#thermal
 	temp_threshold=65;
+	temp_threshold2=80;
+	temp_control=15;
+	temp_control2=14;
 }
 
 get_2()
@@ -44,6 +50,9 @@ get_2()
 	
 	#thermal
 	temp_threshold=70;
+	temp_threshold2=82;
+	temp_control=15;
+	temp_control2=14;
 }
 
 get_3()
@@ -59,6 +68,9 @@ get_3()
 	
 	#thermal
 	temp_threshold=75;
+	temp_threshold2=86;
+	temp_control=15;
+	temp_control2=14;
 }
 
 get_4()
@@ -74,6 +86,9 @@ get_4()
 	
 	#thermal
 	temp_threshold=80;
+	temp_threshold2=90;
+	temp_control=15;
+	temp_control2=14;
 }
 
 flash_synapse()
@@ -85,7 +100,7 @@ flash_synapse()
 
 wr_sys()
 {
-	echo "${2}" > ${1};
+	$BB echo "${2}" > ${1};
 }
 
 set_preset()
@@ -108,7 +123,10 @@ set_preset()
 	wr_sys /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/max_gpuclk;
 	
 	#thermal
-	wr_sys /sys/module/msm_thermal/parameters/temp_threshold ${temp_threshold};
+	wr_sys /sys/module/msm_thermal/parameters/limit_temp_degC ${temp_threshold};
+	wr_sys /sys/module/msm_thermal/parameters/core_limit_temp_degC ${temp_threshold2};
+	wr_sys /sys/module/msm_thermal/parameters/freq_control_mask ${temp_control};
+	wr_sys /sys/module/msm_thermal/parameters/core_control_mask ${temp_control2};
 
 	flash_synapse;
 }
