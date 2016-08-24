@@ -23,7 +23,7 @@
 #define MSM_LIMITER_MINOR		3
 
 /* Recommended to set below values from userspace. */
-#define FREQ_CONTROL			0
+#define FREQ_CONTROL			1
 #define DEBUG_MODE			0
 #define MPD_ENABLED			0
 
@@ -39,17 +39,23 @@
  * pair to apply value individually.
  */
 
-#if defined(CONFIG_ARCH_MSM8916)
+#if defined(CONFIG_ARCH_APQ8064)
+#define DEFAULT_SUSP_MAX_FREQUENCY	1026000
+#elif defined(CONFIG_ARCH_MSM8916)
 #define DEFAULT_SUSP_MAX_FREQUENCY	998400
 #elif defined(CONFIG_ARCH_APQ8084)
 #define DEFAULT_SUSP_MAX_FREQUENCY	1728000
 #endif
-#if defined(CONFIG_ARCH_MSM8916)
+#if defined(CONFIG_ARCH_APQ8064)
+#define DEFAULT_RESUME_MAX_FREQUENCY	1512000
+#elif defined(CONFIG_ARCH_MSM8916)
 #define DEFAULT_RESUME_MAX_FREQUENCY	1209600
 #elif defined(CONFIG_ARCH_APQ8084)
 #define DEFAULT_RESUME_MAX_FREQUENCY	2649600
 #endif
-#if defined(CONFIG_ARCH_MSM8916)
+#if defined(CONFIG_ARCH_APQ8064)
+#define DEFAULT_MIN_FREQUENCY		384000
+#elif defined(CONFIG_ARCH_MSM8916)
 #define DEFAULT_MIN_FREQUENCY		200000
 #elif defined(CONFIG_ARCH_APQ8084)
 #define DEFAULT_MIN_FREQUENCY		300000
