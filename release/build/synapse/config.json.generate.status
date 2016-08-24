@@ -21,9 +21,9 @@ cat << CTAG
 				action:"live CPU_MAX_MIN_Freq"
 			}},
 			{ SLiveLabel:{
-				title: "Current CPU frequency",
+				title: "Current CPU Cores frequency",
 				refresh:2000,
-				action:"live CPU_CUR_Freq"
+				action:"live CORESTATUS"
 			}},
 			{ SLiveLabel:{
 				title:"Current CPU governor",

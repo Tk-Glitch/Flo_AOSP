@@ -35,7 +35,7 @@ case $1 in
 			/res/synapse/files/sqlite3 $i 'REINDEX;' 2> /dev/null;
 		done;
 
-		$BB echo "数据库优化完毕.";
+		$BB echo "Done optimizing databases.";
 	;;
 	logcat)
 		saved="$LOGS/logcat-$TIMESTAMP.txt";
@@ -60,7 +60,7 @@ case $1 in
 			
 			$BB cp -f $kmsg $saved;
 		else
-			$BB echo "$kmsg 没有找到.";
+			$BB echo "$kmsg missing.";
 		fi;
 	;;
 	reboot)
@@ -78,6 +78,6 @@ esac;
 
 case $1 in
 	logcat|dmesg|kmsg)
-		$BB echo "文件保存至 $saved";
+		$BB echo "Saved $saved";
 	;;
 esac;
