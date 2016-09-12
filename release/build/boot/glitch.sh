@@ -25,7 +25,7 @@ MAXF0=`grep "MAXF_CPU0" $KERNEL_CONF | cut -d '=' -f2`
 MAXF1=`grep "MAXF_CPU1" $KERNEL_CONF | cut -d '=' -f2`
 MAXF2=`grep "MAXF_CPU2" $KERNEL_CONF | cut -d '=' -f2`
 MAXF3=`grep "MAXF_CPU3" $KERNEL_CONF | cut -d '=' -f2`
-echo "0:$MAXF0 1:$MAXF1 2:$MAXF2 3:$MAXF3" > /sys/kernel/msm_limiter/live_max_freq;
+echo "0:$MAXF0 1:$MAXF1 2:$MAXF2 3:$MAXF3" > /sys/kernel/msm_limiter/resume_max_freq;
 echo Max CPU0 Frequency: $MAXF0 >> $KERNEL_LOGFILE;
 echo Max CPU1 Frequency: $MAXF1 >> $KERNEL_LOGFILE;
 echo Max CPU2 Frequency: $MAXF2 >> $KERNEL_LOGFILE;
@@ -33,7 +33,7 @@ echo Max CPU3 Frequency: $MAXF3 >> $KERNEL_LOGFILE;
 
 #Min CPU_FREQ
 MINF=`grep "MINF" $KERNEL_CONF | cut -d '=' -f2`
-echo "0:$MINF 1:$MINF 2:$MINF 3:$MINF" > /sys/kernel/msm_limiter/live_min_freq;
+echo "0:$MINF 1:$MINF 2:$MINF 3:$MINF" > /sys/kernel/msm_limiter/suspend_min_freq;
 echo Min CPU Frequency: $MINF >> $KERNEL_LOGFILE;
 
 #Max suspend CPU_FREQ
@@ -79,6 +79,9 @@ echo io scheduler: noop >> $KERNEL_LOGFILE;
 elif [ "`grep IOSCHED=7 $KERNEL_CONF`" ]; then
 echo "bfq" > /sys/block/mmcblk0/queue/scheduler;
 echo io scheduler: BFQ >> $KERNEL_LOGFILE;
+else
+  echo "deadline" > /sys/block/mmcblk0/queue/scheduler;
+  echo io scheduler: deadline >> $KERNEL_LOGFILE;
 fi
 
 #Read-ahead
@@ -97,6 +100,9 @@ echo Read-ahead: 1024 >> $KERNEL_LOGFILE;
 elif [ "`grep READAHEAD=5 $KERNEL_CONF`" ]; then
 echo 2048 > /sys/block/mmcblk0/queue/read_ahead_kb;
 echo Read-ahead: 2048 >> $KERNEL_LOGFILE;
+else
+  echo 256 > /sys/block/mmcblk0/queue/read_ahead_kb;
+  echo Read-ahead: 256 >> $KERNEL_LOGFILE;
 fi
 
 #Backlight dimmer option
@@ -184,20 +190,20 @@ fstrim -v /data | tee -a $KERNEL_LOGFILE;
 if [ "`grep THERM=1 $KERNEL_CONF`" ]; then
   echo 65 > /sys/module/msm_thermal/parameters/limit_temp_degC;
   echo 75 > /sys/module/msm_thermal/parameters/core_limit_temp_degC;
-  echo 15 > /sys/module/msm_thermal/parameters/freq_control_mask;
-  echo 14 > /sys/module/msm_thermal/parameters/core_control_mask;
+  echo 14 > /sys/module/msm_thermal/parameters/freq_control_mask;
+  echo 12 > /sys/module/msm_thermal/parameters/core_control_mask;
   echo run cool >> $KERNEL_LOGFILE;
 elif [ "`grep THERM=2 $KERNEL_CONF`" ]; then
   echo 80 > /sys/module/msm_thermal/parameters/limit_temp_degC;
   echo 90 > /sys/module/msm_thermal/parameters/core_limit_temp_degC;
-  echo 15 > /sys/module/msm_thermal/parameters/freq_control_mask;
-  echo 14 > /sys/module/msm_thermal/parameters/core_control_mask;
+  echo 14 > /sys/module/msm_thermal/parameters/freq_control_mask;
+  echo 12 > /sys/module/msm_thermal/parameters/core_control_mask;
   echo run hot >> $KERNEL_LOGFILE;
 else
   echo 70 > /sys/module/msm_thermal/parameters/limit_temp_degC;
   echo 80 > /sys/module/msm_thermal/parameters/core_limit_temp_degC;
-  echo 15 > /sys/module/msm_thermal/parameters/freq_control_mask;
-  echo 14 > /sys/module/msm_thermal/parameters/core_control_mask;
+  echo 14 > /sys/module/msm_thermal/parameters/freq_control_mask;
+  echo 12 > /sys/module/msm_thermal/parameters/core_control_mask;
   echo run warm >> $KERNEL_LOGFILE;
 fi
 
