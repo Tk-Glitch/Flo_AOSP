@@ -191,7 +191,7 @@ mkdir -p $KERNEL_DIR/release/$target_device-out
 
 #Aroma
 cd $KERNEL_DIR/release/build/aroma
-REL=Glitch-$target_name-r$counter$target_variant-full.zip
+REL=Glitch-MM.$target_name.r$counter$target_variant-Full.zip
 
 	zip -q -r ${REL} boot config META-INF system synapse
 	#sha256sum ${REL} > ${REL}.sha256sum
@@ -199,7 +199,7 @@ REL=Glitch-$target_name-r$counter$target_variant-full.zip
 
 #Restore
 cd $KERNEL_DIR/release/build/restore
-REL2=Glitch-$target_name-r$counter$target_variant-restore.zip
+REL2=Glitch-MM.$target_name.r$counter$target_variant-Pure.zip
 
 	zip -q -r ${REL2} boot config META-INF system synapse
 	#sha256sum ${REL2} > ${REL2}.sha256sum
