@@ -8,8 +8,10 @@ rm /tmp/ramdisk/initrd.gz
 rm /tmp/initrd.img
 
 #Start glitch script
+if [ -f "/tmp/ramdisk/init.rc" ]; then
 if [ $(grep -c "import /init.glitch.rc" /tmp/ramdisk/init.rc) == 0 ]; then
-   sed -i "/import \/init\.usb\.rc/aimport /init.glitch.rc" /tmp/ramdisk/init.rc
+   sed -i 's/.*on early-init.*/import \/init.glitch.rc\n\n&/' /tmp/ramdisk/init.rc
+fi
 fi
 
 #enable selinux enforcing
