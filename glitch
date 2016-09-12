@@ -110,9 +110,9 @@ echo "-----------------------------------------"
 echo "Write release number in config (r"$counter")"
 
 if [ "$type" = cm ] ; then
-releasenumber='CONFIG_LOCALVERSION="-Glitch-N7-CM-r'$counter'"'
+releasenumber='CONFIG_LOCALVERSION="-Glitch-N7-CM-r'$counter'-MM"'
 else
-releasenumber='CONFIG_LOCALVERSION="-Glitch-N7-AOSP-r'$counter'"'
+releasenumber='CONFIG_LOCALVERSION="-Glitch-N7-AOSP-r'$counter'-MM"'
 fi
 
 cp arch/arm/configs/$target_defconfig tmp_$target_defconfig;

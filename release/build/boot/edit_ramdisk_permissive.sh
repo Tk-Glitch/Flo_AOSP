@@ -42,10 +42,14 @@ sed -i '/\/sys\/devices\/system\/cpu\/cpu1\/cpufreq\/scaling_governor/d' /tmp/ra
 sed -i '/\/sys\/devices\/system\/cpu\/cpu2\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
 sed -i '/\/sys\/devices\/system\/cpu\/cpu3\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
 
-#backup current fstab
-if [ ! -f "/tmp/ramdisk/fstab.orig" ]; then
-mv /tmp/ramdisk/fstab.flo /tmp/ramdisk/fstab.orig;
-fi;
+#restore fstab backup
+if [ -f "/tmp/ramdisk/fstab.orig" ]; then
+rm /tmp/ramdisk/fstab.flo
+mv /tmp/ramdisk/fstab.orig /tmp/ramdisk/fstab.flo
+fi
+
+#backup fstab
+cp /tmp/ramdisk/fstab.flo /tmp/ramdisk/fstab.orig
 
 #Check for F2FS and change fstab accordingly in ramdisk
 mount /cache 2> /dev/null
@@ -61,26 +65,26 @@ SYSTEM_F2FS=$?
 
 #System partition
 if [ $SYSTEM_F2FS -eq 0 ]; then
-	sed -i "/system.*ext4/d" /tmp/fstab
+sed -i 's/.*by-name\/system.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/system       \/system         f2fs    ro,nosuid,nodev,noatime,nodiratime,inline_xattr                              wait/g' /tmp/ramdisk/fstab.flo
 else
-	sed -i "/system.*f2fs/d" /tmp/fstab
+sed -i 's/.*by-name\/system.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/system       \/system         ext4    ro,barrier=1                                                                 wait/g' /tmp/ramdisk/fstab.flo
 fi
 
 #Cache partition
 if [ $CACHE_F2FS -eq 0 ]; then
-	sed -i "/cache.*ext4/d" /tmp/fstab
+sed -i 's/.*by-name\/cache.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/cache        \/cache          f2fs    rw,nosuid,nodev,noatime,nodiratime,inline_xattr                              wait,check,formattable/g' /tmp/ramdisk/fstab.flo
 else
-	sed -i "/cache.*f2fs/d" /tmp/fstab
+sed -i 's/.*by-name\/cache.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/cache        \/cache          ext4    noatime,nosuid,nodev,barrier=1,data=ordered,noauto_da_alloc,errors=panic     wait,check,formattable/g' /tmp/ramdisk/fstab.flo
 fi
 
 #Data partition
 if [ $DATA_F2FS -eq 0 ]; then
-	sed -i "/data.*ext4/d" /tmp/fstab
+sed -i 's/.*by-name\/userdata.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/userdata     \/data           f2fs    rw,nosuid,nodev,noatime,nodiratime,inline_xattr                              wait,check,formattable,encryptable=\/dev\/block\/platform\/msm_sdcc.1\/by-name\/metadata/g' /tmp/ramdisk/fstab.flo
 else
-	sed -i "/data.*f2fs/d" /tmp/fstab
+sed -i 's/.*by-name\/userdata.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/userdata     \/data           ext4    noatime,nosuid,nodev,barrier=1,data=ordered,noauto_da_alloc,errors=panic     wait,check,formattable,encryptable=\/dev\/block\/platform\/msm_sdcc.1\/by-name\/metadata/g' /tmp/ramdisk/fstab.flo
 fi
 
-mv /tmp/fstab /tmp/ramdisk/fstab.flo;
+sed -i '$!N; /^\(.*\)\n\1$/!P; D' /tmp/ramdisk/fstab.flo
 
 #copy glitch scripts & bb
 cp /tmp/busybox /tmp/ramdisk/sbin/busybox
