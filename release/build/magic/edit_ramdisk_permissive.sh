@@ -64,7 +64,10 @@ fi
 #backup fstab
 cp /tmp/ramdisk/fstab.flo /tmp/ramdisk/fstab.orig
 
-#Check for F2FS and change fstab accordingly in ramdisk
+#Check for F2FS and change fstab accordingly in ramdisk except for cm or if F2FS is found in the original fstab
+
+if [ ! -f "/tmp/ramdisk/init.cm.rc" ] || [ $(grep -c "f2fs" /tmp/ramdisk/fstab.flo) == 0 ]; then
+
 mount /cache 2> /dev/null
 mount /data 2> /dev/null
 mount /system 2> /dev/null
@@ -98,6 +101,8 @@ sed -i 's/.*by-name\/userdata.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/use
 fi
 
 sed -i '$!N; /^\(.*\)\n\1$/!P; D' /tmp/ramdisk/fstab.flo
+
+fi
 
 #copy glitch scripts & bb
 cp /tmp/busybox /tmp/ramdisk/sbin/busybox
