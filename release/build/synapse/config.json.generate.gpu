@@ -115,7 +115,7 @@ cat << CTAG
 					}},
 						{ SGeneric:{
 							title:"RGB colors tuning",
-							description:"Here you can set the values of RGB channel. range 0-255",
+							description:"Here you can set the values of RGB channel. Range 0-255 (higher than 255 is invalid and will break colors)",
 							default:'$KCAL',
 							action:"gamma /sys/devices/platform/DIAG0.0/power_rail",
 						}},'

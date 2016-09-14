@@ -1,7 +1,7 @@
 #!/sbin/busybox sh
 BB=/sbin/busybox;
 
-get_0()
+get_p0()
 {
 	#cpu
 	cpu_max_freq=1350000;
@@ -13,13 +13,13 @@ get_0()
 	gpu_max_freq=200000000;
 	
 	#thermal
-	temp_threshold=55;
-	temp_threshold2=75;
-	temp_control=15;
-	temp_control2=14;
+	temp_threshold=60;
+	temp_threshold2=70;
+	temp_control=14;
+	temp_control2=12;
 }
 
-get_1()
+get_p1()
 {	
 	#cpu
 	cpu_max_freq=1512000;
@@ -32,12 +32,12 @@ get_1()
 	
 	#thermal
 	temp_threshold=65;
-	temp_threshold2=80;
-	temp_control=15;
-	temp_control2=14;
+	temp_threshold2=75;
+	temp_control=14;
+	temp_control2=12;
 }
 
-get_2()
+get_p2()
 {	
 	#cpu
 	cpu_max_freq=1728000;
@@ -50,12 +50,12 @@ get_2()
 	
 	#thermal
 	temp_threshold=70;
-	temp_threshold2=82;
-	temp_control=15;
-	temp_control2=14;
+	temp_threshold2=80;
+	temp_control=14;
+	temp_control2=12;
 }
 
-get_3()
+get_p3()
 {
 	#cpu
 	cpu_max_freq=1890000;
@@ -64,16 +64,16 @@ get_3()
 	power_efficient=N;
 
 	#gpu
-	gpu_max_freq=600000000;
+	gpu_max_freq=545000000;
 	
 	#thermal
 	temp_threshold=75;
-	temp_threshold2=86;
-	temp_control=15;
-	temp_control2=14;
+	temp_threshold2=85;
+	temp_control=14;
+	temp_control2=12;
 }
 
-get_4()
+get_p4()
 {	
 	#cpu
 	cpu_max_freq=2052000;
@@ -82,13 +82,13 @@ get_4()
 	power_efficient=N;
 
 	#gpu
-	gpu_max_freq=627000000;
+	gpu_max_freq=600000000;
 	
 	#thermal
 	temp_threshold=80;
-	temp_threshold2=90;
-	temp_control=15;
-	temp_control2=14;
+	temp_threshold2=85;
+	temp_control=14;
+	temp_control2=12;
 }
 
 flash_synapse()
@@ -106,21 +106,15 @@ wr_sys()
 set_preset()
 {	
 	#cpu
-	wr_sys /sys/kernel/msm_limiter/resume_max_freq_0 ${cpu_max_freq};
-	wr_sys /sys/kernel/msm_limiter/resume_max_freq_1 ${cpu_max_freq};
-	wr_sys /sys/kernel/msm_limiter/resume_max_freq_2 ${cpu_max_freq};
-	wr_sys /sys/kernel/msm_limiter/resume_max_freq_3 ${cpu_max_freq};
-	wr_sys /sys/kernel/msm_limiter/suspend_min_freq_0 ${cpu_min_freq};
-	wr_sys /sys/kernel/msm_limiter/suspend_min_freq_1 ${cpu_min_freq};
-	wr_sys /sys/kernel/msm_limiter/suspend_min_freq_2 ${cpu_min_freq};
-	wr_sys /sys/kernel/msm_limiter/suspend_min_freq_3 ${cpu_min_freq};
+	wr_sys /sys/kernel/msm_limiter/resume_max_freq ${cpu_max_freq};
+	wr_sys /sys/kernel/msm_limiter/suspend_min_freq ${cpu_min_freq};
 	wr_sys /sys/module/workqueue/parameters/power_efficient ${power_efficient};
 	wr_sys /sys/module/msm_mpdecision/parameters/enabled 0;
 	wr_sys /sys/module/msm_hotplug/msm_enabled 1;
 	wr_sys /sys/module/msm_hotplug/max_cpus_online ${max_cpus_online};
 	
 	#gpu
-	wr_sys /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/max_gpuclk;
+	wr_sys /sys/devices/platform/kgsl-3d0.0/kgsl/kgsl-3d0/max_gpuclk ${gpu_max_freq};
 	
 	#thermal
 	wr_sys /sys/module/msm_thermal/parameters/limit_temp_degC ${temp_threshold};
