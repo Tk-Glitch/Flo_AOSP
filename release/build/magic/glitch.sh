@@ -1,10 +1,10 @@
-#!/sbin/busybox sh
+#!/system/bin/sh
 
 KERNEL_CONF="/system/etc/glitch-settings.conf";
 KERNEL_LOGFILE="/data/local/tmp/glitch-kernel.log";
 
 if [ -f $KERNEL_LOGFILE ]; then
-  mv $KERNEL_LOGFILE $KERNEL_LOGFILE.2;
+  mv $KERNEL_LOGFILE $KERNEL_LOGFILE.previous;
 fi
 
 echo $(date) >> $KERNEL_LOGFILE;
@@ -352,11 +352,11 @@ $BB echo "0" > $SYN/files/dropcaches_prof;
 if [ ! -e $UCI_XBIN ]; then
 	$BB mount -o remount,rw /system
 	$BB mount -t rootfs -o remount,rw rootfs
-	
+
 	$BB chmod 755 $UCI_FILE
 	$BB ln -s $UCI_FILE $UCI_XBIN
 	$BB chmod 755 $UCI_XBIN
-	
+
 	$BB mount -t rootfs -o remount,ro rootfs
 	$BB mount -o remount,ro /system
 fi

@@ -154,18 +154,16 @@ rm -f arch/arm/configs/release_$target_defconfig
 
 #Aroma
 mkdir -p $KERNEL_DIR/release/build/aroma
-cp -r $KERNEL_DIR/release/build/boot $KERNEL_DIR/release/build/aroma/boot
-cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/aroma/boot/glitch.zImage
-cp -r $KERNEL_DIR/release/build/config $KERNEL_DIR/release/build/aroma/config
+cp -r $KERNEL_DIR/release/build/magic $KERNEL_DIR/release/build/aroma/magic
+cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/aroma/magic/glitch.zImage
 cp -r $KERNEL_DIR/release/build/META-INF-aroma $KERNEL_DIR/release/build/aroma/META-INF
 cp -r $KERNEL_DIR/release/build/synapse $KERNEL_DIR/release/build/aroma/synapse
 cp -r $KERNEL_DIR/release/build/system $KERNEL_DIR/release/build/aroma/system
 
 #Restore
 mkdir -p $KERNEL_DIR/release/build/restore
-cp -r $KERNEL_DIR/release/build/boot $KERNEL_DIR/release/build/restore/boot
-cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/restore/boot/glitch.zImage
-cp -r $KERNEL_DIR/release/build/config $KERNEL_DIR/release/build/restore/config
+cp -r $KERNEL_DIR/release/build/magic $KERNEL_DIR/release/build/restore/magic
+cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/restore/magic/glitch.zImage
 cp -r $KERNEL_DIR/release/build/META-INF-restore $KERNEL_DIR/release/build/restore/META-INF
 cp -r $KERNEL_DIR/release/build/synapse $KERNEL_DIR/release/build/restore/synapse
 cp -r $KERNEL_DIR/release/build/system $KERNEL_DIR/release/build/restore/system
@@ -193,7 +191,7 @@ mkdir -p $KERNEL_DIR/release/$target_device-out
 cd $KERNEL_DIR/release/build/aroma
 REL=Glitch-MM.$target_name.r$counter$target_variant-Full.zip
 
-	zip -q -r ${REL} boot config META-INF system synapse
+	zip -q -r ${REL} magic META-INF system synapse
 	#sha256sum ${REL} > ${REL}.sha256sum
 	mv ${REL}* $KERNEL_DIR/release/$target_device-out/
 
@@ -201,7 +199,7 @@ REL=Glitch-MM.$target_name.r$counter$target_variant-Full.zip
 cd $KERNEL_DIR/release/build/restore
 REL2=Glitch-MM.$target_name.r$counter$target_variant-Pure.zip
 
-	zip -q -r ${REL2} boot config META-INF system synapse
+	zip -q -r ${REL2} magic META-INF system synapse
 	#sha256sum ${REL2} > ${REL2}.sha256sum
 	mv ${REL2}* $KERNEL_DIR/release/$target_device-out/
 

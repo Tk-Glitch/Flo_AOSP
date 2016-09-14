@@ -14,7 +14,7 @@ cat << CTAG
 					action:"presets p0"
 				}},
 				{ SDescription:{
-					description:"Battery friendly. May be too slow for gaming or high quality video playback. 1.35GHz Max CPU clock, 81MHz Min CPU clock - 200MHz GPU clock - 55C° temp threshold",
+					description:"Battery friendly. May be too slow for gaming or high quality video playback. 1.35GHz Max CPU clock, 81MHz Min CPU clock - 200MHz GPU clock - 60C° temp threshold",
 				}},
 				{ SButton:{
 					label:"Stock",
@@ -35,14 +35,14 @@ cat << CTAG
 					action:"presets p3"
 				}},
 				{ SDescription:{
-					description:"Faster, hotter and less battery friendly. May be unstable on some devices. 1.89GHz Max CPU clock, 81MHz Min CPU clock - 600MHz GPU clock - 75C° temp threshold",
+					description:"Faster, hotter and less battery friendly. May be unstable on some devices. 1.89GHz Max CPU clock, 81MHz Min CPU clock - 545MHz GPU clock - 75C° temp threshold",
 				}},
 				{ SButton:{
 					label:"Glitchy",
 					action:"presets p4"
 				}},
 				{ SDescription:{
-					description:"Very fast.. As long as you're not hitting the thermal throttling ! May be unstable on many devices. 2.05GHz Max CPU clock, 81MHz Min CPU clock - 627MHz GPU clock - 80C° temp threshold",
+					description:"Very fast.. As long as you're not hitting the thermal throttling ! May be unstable on many devices. 2.05GHz Max CPU clock, 81MHz Min CPU clock - 600MHz GPU clock - 80C° temp threshold",
 				}},
 			]
 }
