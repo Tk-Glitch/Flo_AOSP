@@ -100,11 +100,7 @@ cat << CTAG
 							title:"Voltage '${VOLTAGE}'",
 							action:"voltage gpuvolt '${VOLTAGE}'",
 							unit:"' ${UNIT}'",'
-							if [ "$UVOLT" -ge "900000" ]; then
 								$BB echo 'min:900000, max:1200000, step:5000 }},'
-							else
-								$BB echo 'min:900, max:1200, step:5 }},'
-							fi;
 					done < /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels_GPU
 			fi`
 			`if [ -d "/sys/devices/platform/DIAG0.0" ]; then
