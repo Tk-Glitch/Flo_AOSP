@@ -120,8 +120,8 @@ sed "43s/.*/$releasenumber/g" tmp_$target_defconfig > release_$target_defconfig;
 mv release_$target_defconfig arch/arm/configs/release_$target_defconfig
 rm -f $KERNEL_DIR/tmp_$target_defconfig
 
-    mka -C "$KERNEL_DIR" O="$target_dir" release_$target_defconfig HOSTCC="$CCACHE gcc -w -s -pipe -std=gnu89 -O2"
-    mka -C "$KERNEL_DIR" O="$target_dir" HOSTCC="$CCACHE gcc -w -s -pipe -O2" CROSS_COMPILE="$CCACHE $CROSS_PREFIX" zImage modules
+    mka -C "$KERNEL_DIR" O="$target_dir" release_$target_defconfig HOSTCC="$CCACHE gcc"
+    mka -C "$KERNEL_DIR" O="$target_dir" HOSTCC="$CCACHE gcc" CROSS_COMPILE="$CCACHE $CROSS_PREFIX" zImage modules
 
 [[ -d release ]] || {
 	echo "-----------------------------------------"
