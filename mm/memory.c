@@ -1533,7 +1533,7 @@ split_fallthrough:
 	pte = *ptep;
 	if (!pte_present(pte))
 		goto no_page;
-	if ((flags & FOLL_WRITE) && !can_follow_write_pte(pte,flag))
+	if ((flags & FOLL_WRITE) && !can_follow_write_pte(pte,flags))
 		goto unlock;
 
 	page = vm_normal_page(vma, address, pte);
