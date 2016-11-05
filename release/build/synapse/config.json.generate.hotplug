@@ -6,7 +6,7 @@ cat << CTAG
 				title:"Info"
 			}},
 				{ SDescription:{
-					description:Use only one hotplug driver from the following options, using more than one at the same time may cause unexpected behavior.",
+					description:"Use only one hotplug driver from the following options, using more than one at the same time may cause unexpected behavior.",
 				}},
 			`if [ -f "/system/bin/mpdecision" ]; then
 			MPDEC=\`ps | $BB grep mpdecision\`
