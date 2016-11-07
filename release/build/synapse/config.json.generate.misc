@@ -44,13 +44,25 @@ cat << CTAG
 				}},
 					{ SCheckBox:{
 						label:"Enable",
-						description:"Enabling this allows for OTG operation.",
+						description:"Enabling this allows for OTG operation while charging.",
 						default:'$USB',
 						action:"boolean /sys/module/msm_otg/parameters/usbhost_charge_mode"
 					}},'
 			fi`
+			`if [ -f "/sys/android_touch/doubletap2wake" ]; then
+			DT2W=\`$BB cat /sys/android_touch/doubletap2wake\`
+				$BB echo '{ SPane:{
+				title:"Doubletap to wake"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Double tap on screen to wake your device. Will drain more battery on standby.",
+						default:'$DT2W',
+						action:"generic /sys/android_touch/doubletap2wake"
+					}},'
+			fi`
 			`if [ -f "/sys/devices/i2c-0/0-006a/float_voltage" ]; then
-				BLX=\`$BB cat /sys/devices/i2c-0/0-006a/float_voltage\`
+			BLX=\`$BB cat /sys/devices/i2c-0/0-006a/float_voltage\`
 				$BB echo '{ SPane:{
 					title:"Battery Life Extender (BLE)"
 				}},
