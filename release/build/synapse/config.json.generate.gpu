@@ -103,17 +103,17 @@ cat << CTAG
 								$BB echo 'min:900000, max:1200000, step:5000 }},'
 					done < /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels_GPU
 			fi`
-			`if [ -d "/sys/devices/platform/DIAG0.0" ]; then
-				if [ -f "/sys/devices/platform/DIAG0.0/power_rail" ]; then
-				KCAL=\`$BB cat /sys/devices/platform/DIAG0.0/power_rail\`;
+			`if [ -d "/sys/devices/platform/kcal_ctrl.0" ]; then
+				if [ -f "/sys/devices/platform/kcal_ctrl.0/kcal" ]; then
+				KCAL=\`$BB cat /sys/devices/platform/kcal_ctrl.0/kcal\`;
 					$BB echo '{ SPane:{
 						title:"Display Tuning",
 					}},
 						{ SGeneric:{
 							title:"RGB colors tuning",
-							description:"Here you can set the values of RGB channel. Range 0-255 (higher than 255 is invalid and will break colors)",
+							description:"Here you can set the values of RGB channel. Range 0-256 per canal (higher than 256 is invalid and will break colors)",
 							default:'$KCAL',
-							action:"gamma /sys/devices/platform/DIAG0.0/power_rail",
+							action:"gamma /sys/devices/platform/kcal_ctrl.0/kcal",
 						}},'
 				fi
 				fi
