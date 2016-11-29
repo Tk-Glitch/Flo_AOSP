@@ -873,9 +873,6 @@ static void mdp4_overlay_vg_get_src_offset(struct mdp4_overlay_pipe *pipe,
 				(pipe->src_y * pipe->srcp1_ystride);
 			break;
 
-#ifdef CONFIG_GLITCH_CM
-		case MDP_YCBYCR_H2V1:
-#endif
 		case MDP_YCRYCB_H2V1:
 			if (pipe->src_x & 0x1)
 				pipe->src_x += 1;
@@ -1075,9 +1072,6 @@ int mdp4_overlay_format2type(uint32 format)
 	case MDP_BGRA_8888:
 	case MDP_RGBX_8888:
 		return OVERLAY_TYPE_RGB;
-#ifdef CONFIG_GLITCH_CM
-	case MDP_YCBYCR_H2V1:
-#endif
 	case MDP_YCRYCB_H2V1:
 	case MDP_Y_CRCB_H2V1:
 	case MDP_Y_CBCR_H2V1:
@@ -1244,9 +1238,6 @@ int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 		pipe->element0 = C1_B_Cb;	/* B */
 		pipe->bpp = 4;		/* 4 bpp */
 		break;
-#ifdef CONFIG_GLITCH_CM
-	case MDP_YCBYCR_H2V1:
-#endif
 	case MDP_YCRYCB_H2V1:
 		pipe->frame_format = MDP4_FRAME_FORMAT_LINEAR;
 		pipe->fetch_plane = OVERLAY_PLANE_INTERLEAVED;
@@ -1258,24 +1249,10 @@ int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 		pipe->unpack_tight = 1;
 		pipe->unpack_align_msb = 0;
 		pipe->unpack_count = 3;
-#ifdef CONFIG_GLITCH_CM
-		if (pipe->src_format == MDP_YCRYCB_H2V1) {
-			pipe->element3 = C0_G_Y;	/* G */
-			pipe->element2 = C2_R_Cr;	/* R */
-			pipe->element1 = C0_G_Y;	/* G */
-			pipe->element0 = C1_B_Cb;	/* B */
-		} else if (pipe->src_format == MDP_YCBYCR_H2V1) {
-			pipe->element3 = C0_G_Y;	/* G */
-			pipe->element2 = C1_B_Cb;	/* B */
-			pipe->element1 = C0_G_Y;	/* G */
-			pipe->element0 = C2_R_Cr;	/* R */
-		}
-#else
 		pipe->element3 = C0_G_Y;	/* G */
 		pipe->element2 = C2_R_Cr;	/* R */
 		pipe->element1 = C0_G_Y;	/* G */
 		pipe->element0 = C1_B_Cb;	/* B */
-#endif
 		pipe->bpp = 2;		/* 2 bpp */
 		pipe->chroma_sample = MDP4_CHROMA_H2V1;
 		break;
@@ -3358,15 +3335,8 @@ int mdp4_overlay_set(struct fb_info *info, struct mdp_overlay *req)
 		return -ENODEV;
 	}
 
-	if (mdp_fb_is_power_off(mfd)) {
-		/* suspended */
-		pr_err("%s,%d fb_%d panel type %d is suspended\n", __func__,
-			__LINE__, mfd->index, mfd->panel.type);
-		return -EINVAL;
-	}
-
 	if (info->node != 0 || mfd->cont_splash_done)	/* primary */
-		if (mdp_fb_is_power_off(mfd))		/* suspended */
+		if (!mfd->panel_power_on)		/* suspended */
 			return -EPERM;
 
 	if (req->src.format == MDP_FB_FORMAT)
@@ -3488,7 +3458,7 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 		/* mixer 0 */
 		ctrl->mixer0_played = 0;
 		if (ctrl->panel_mode & MDP4_PANEL_MDDI) {
-			if (!mdp_fb_is_power_off(mfd))
+			if (mfd->panel_power_on)
 				mdp4_mddi_blt_dmap_busy_wait(mfd);
 		}
 	}
@@ -3498,7 +3468,7 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 
 	if (pipe->mixer_num == MDP4_MIXER0) {
 		if (ctrl->panel_mode & MDP4_PANEL_MDDI) {
-			if (!mdp_fb_is_power_off(mfd))
+			if (mfd->panel_power_on)
 				mdp4_mddi_overlay_restore();
 		}
 	} else {	/* mixer1, DTV, ATV */
@@ -3543,7 +3513,7 @@ int mdp4_overlay_vsync_ctrl(struct fb_info *info, int enable)
 	if (mfd == NULL)
 		return -ENODEV;
 
-	if (mdp_fb_is_power_off(mfd))
+	if (!mfd->panel_power_on)
 		return -EINVAL;
 
 	if (enable)
@@ -3807,15 +3777,11 @@ int mdp4_overlay_commit(struct fb_info *info)
 	int mixer;
 
 	if (mfd == NULL) {
-		pr_err("%s: mfd == NULL, -ENODEV\n", __func__);
 		ret = -ENODEV;
 		goto mdp4_overlay_commit_exit;
 	}
 
-	if (mdp_fb_is_power_off(mfd)) {
-		/* suspended */
-		pr_err("%s,%d fb_%d panel type %d is suspended\n", __func__,
-			__LINE__, mfd->index, mfd->panel.type);
+	if (!mfd->panel_power_on) {
 		ret = -EINVAL;
 		goto mdp4_overlay_commit_exit;
 	}
