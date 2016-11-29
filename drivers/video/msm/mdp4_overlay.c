@@ -1879,11 +1879,23 @@ void mdp4_overlay_borderfill_stage_up(struct mdp4_overlay_pipe *pipe)
 
 	bspipe = ctrl->stage[mixer][MDP4_MIXER_STAGE_BASE];
 
+        if (bspipe == NULL) {
+                pr_err("%s: no base layer at mixer=%d\n",
+                                __func__, mixer);
+                return;
+        }
+
 	/*
 	 * bspipe is clone here
 	 * get real pipe
 	 */
 	bspipe = mdp4_overlay_ndx2pipe(bspipe->pipe_ndx);
+
+        if (bspipe == NULL) {
+                pr_err("%s: mdp4_overlay_ndx2pipe returned null pipe ndx\n",
+                                __func__);
+                return;
+        }
 
 	/* save original base layer */
 	ctrl->baselayer[mixer] = bspipe;
@@ -3346,8 +3358,15 @@ int mdp4_overlay_set(struct fb_info *info, struct mdp_overlay *req)
 		return -ENODEV;
 	}
 
+	if (mdp_fb_is_power_off(mfd)) {
+		/* suspended */
+		pr_err("%s,%d fb_%d panel type %d is suspended\n", __func__,
+			__LINE__, mfd->index, mfd->panel.type);
+		return -EINVAL;
+	}
+
 	if (info->node != 0 || mfd->cont_splash_done)	/* primary */
-		if (!mfd->panel_power_on)		/* suspended */
+		if (mdp_fb_is_power_off(mfd))		/* suspended */
 			return -EPERM;
 
 	if (req->src.format == MDP_FB_FORMAT)
@@ -3469,7 +3488,7 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 		/* mixer 0 */
 		ctrl->mixer0_played = 0;
 		if (ctrl->panel_mode & MDP4_PANEL_MDDI) {
-			if (mfd->panel_power_on)
+			if (!mdp_fb_is_power_off(mfd))
 				mdp4_mddi_blt_dmap_busy_wait(mfd);
 		}
 	}
@@ -3479,7 +3498,7 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 
 	if (pipe->mixer_num == MDP4_MIXER0) {
 		if (ctrl->panel_mode & MDP4_PANEL_MDDI) {
-			if (mfd->panel_power_on)
+			if (!mdp_fb_is_power_off(mfd))
 				mdp4_mddi_overlay_restore();
 		}
 	} else {	/* mixer1, DTV, ATV */
@@ -3519,6 +3538,13 @@ int mdp4_overlay_wait4vsync(struct fb_info *info)
 int mdp4_overlay_vsync_ctrl(struct fb_info *info, int enable)
 {
 	int cmd;
+	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)info->par;
+
+	if (mfd == NULL)
+		return -ENODEV;
+
+	if (mdp_fb_is_power_off(mfd))
+		return -EINVAL;
 
 	if (enable)
 		cmd = 1;
@@ -3781,11 +3807,15 @@ int mdp4_overlay_commit(struct fb_info *info)
 	int mixer;
 
 	if (mfd == NULL) {
+		pr_err("%s: mfd == NULL, -ENODEV\n", __func__);
 		ret = -ENODEV;
 		goto mdp4_overlay_commit_exit;
 	}
 
-	if (!mfd->panel_power_on) {
+	if (mdp_fb_is_power_off(mfd)) {
+		/* suspended */
+		pr_err("%s,%d fb_%d panel type %d is suspended\n", __func__,
+			__LINE__, mfd->index, mfd->panel.type);
 		ret = -EINVAL;
 		goto mdp4_overlay_commit_exit;
 	}

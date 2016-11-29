@@ -178,6 +178,7 @@ config ARCH_MSM8960
 	select MSM_KRAIT_WFE_FIXUP
 	select MSM_IOMMU_GPU_SYNC
 	select MSM_CPU_PWRCTL
+	select HAS_MACH_MEMUTILS
 
 config ARCH_MSM8930
 	bool "MSM8930"
@@ -2638,10 +2639,10 @@ config MSM_CPU_PWRCTL
 	  ensures that they are always off.
 
 config HAS_MACH_MEMUTILS
-	default y
-	bool "Motorola MSM mcmcpy enhancements"
+	default n
+	bool "Motorola MSM memcpy enhancements"
 	help
-	  Faster memcpy performance for Krait
+	Faster memcpy performance for Krait
 
 config FORCE_FAST_CHARGE
 	bool "Force AC charge mode at will"
@@ -2662,12 +2663,6 @@ config LCD_KCAL
 	help
 	  Enable MSM generic LCDC temperature Calibration.
 
-config HAS_MACH_MEMUTILS
-	default n
-	bool "Motorola MSM mcmcpy enhancements"
-	help
-	  Faster memcpy performance for Krait
-
 config MSM_LIMITER
 	bool "MSM Frequency Limiter Driver"
 	depends on (HAS_EARLYSUSPEND)
@@ -2681,5 +2676,4 @@ config GLITCH_CM
 	bool "CyanogenMod compat"
 	help
 	  Enable CM compatibility for AOSP base
-
 endif
