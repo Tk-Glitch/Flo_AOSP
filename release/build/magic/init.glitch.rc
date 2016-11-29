@@ -1,3 +1,6 @@
+on early-init
+     write /sys/devices/virtual/graphics/fb0/rgb "32768 32768 32768"
+
 service glitch /sbin/glitch.sh service
      class late_start
      user root
