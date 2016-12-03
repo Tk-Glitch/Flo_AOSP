@@ -1,4 +1,4 @@
-BB=/sbin/busybox;
+BB=/system/xbin/busybox;
 DEVICE=/files/Glitch_flo.sh;
 
 TIMESTAMP=`date +%Y-%m-%d.%H.%M.%S`;

@@ -1,5 +1,5 @@
-#!/sbin/busybox sh
-BB=/sbin/busybox;
+#!/system/xbin/busybox sh
+BB=/system/xbin/busybox;
 
 get_p0()
 {

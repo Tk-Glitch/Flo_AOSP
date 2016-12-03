@@ -1,6 +1,6 @@
-#!/sbin/busybox sh
+#!/system/xbin/busybox sh
 
-BB=/sbin/busybox;
+BB=/system/xbin/busybox;
 DEVICE=`sh /data/synapse/files/Glitch_flo.sh`;
 
 UCI_CONFIG=/data/synapse/config.json;

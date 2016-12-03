@@ -1,4 +1,4 @@
-BB=/sbin/busybox;
+BB=/system/xbin/busybox;
 
 VOLT_PROF=/data/synapse/files/volt_prof;
 TABLE=/sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels;

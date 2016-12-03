@@ -325,7 +325,7 @@ else
   echo "write /sys/kernel/msm_limiter/scaling_governor \"interactive\"" >> $INIT
 fi
 
-#I/O scheduler // Triggers to early on CM14.1
+#I/O scheduler // Triggers too early on CM14.1
 if [ "$IOSCHED" == "1" ]; then
   echo "write /sys/block/mmcblk0/queue/scheduler cfq" >> $INIT
 elif [ "$IOSCHED" == "2" ]; then

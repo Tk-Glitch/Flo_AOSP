@@ -126,10 +126,7 @@ sed -i '$!N; /^\(.*\)\n\1$/!P; D' /tmp/ramdisk/fstab.flo
 
 fi
 
-#copy glitch scripts & bb
-cp /tmp/busybox /tmp/ramdisk/sbin/busybox
-chmod 755 /tmp/ramdisk/sbin/busybox
-
+#copy glitch scripts
 cp /tmp/init.glitch.rc /tmp/ramdisk/init.glitch.rc
 chmod 755 /tmp/ramdisk/init.glitch.rc
 cp /tmp/init.synapse.sh /tmp/ramdisk/sbin/init.synapse.sh

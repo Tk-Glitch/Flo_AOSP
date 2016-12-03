@@ -1,4 +1,4 @@
-BB=/sbin/busybox;
+BB=/system/xbin/busybox;
 
 caches=/proc/sys/vm/drop_caches;
 	$BB sync;

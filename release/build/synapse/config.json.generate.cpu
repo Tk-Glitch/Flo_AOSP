@@ -367,46 +367,25 @@ cat << CTAG
         }},
 	{ STreeDescriptor:{
 		description:"The various configuration items which are governor-dependent.",
-		path:"/sys/devices/system/cpu/cpufreq",
-		generic: {
-			directory: {
-				STreeDescriptor:{
+					path:"`sh $DEVICE DirCPUGovernorTree`",
 					generic: {
-						directory: {},
-						element: {
-							SGeneric: { title:"@NAME" }
+						directory: {
+							STreeDescriptor:{
+								generic: {
+									directory: {},
+									element: {
+										SGeneric: { title:"@BASENAME" }
+									}
+								},
+								exclude: [ 
+									"boost_duration", "boostpulse", "cpu_utilization", "multi_phase_freq_tbl", "profile", "profile_list", "sampling_rate_min", 
+									"up_threshold_h", "up_threshold_l", "version_profiles", "vdd_levels", "vdd_levels_GPU"
+								]
+							},
 						}
 					},
-					matched: {
-						elements: [
-							{ "sampling_rate" : {
-								SSeekBar: {
-									title:"Sampling rate",
-									description:"The sampling rate controls the frequency in which the governor polls for frequency changes.",
-									min:10000, max:300000, step:10000, unit:"ms"
-								}
-							}}
-						]
-					},
-					exclude: [
-						"boost_duration",
-						"boostpulse",
-						"cpu_utilization",
-						"sampling_rate_min",
-						"up_threshold_h",
-						"up_threshold_l",
-						"multi_phase_freq_tbl",
-						"profile_list",
-						"version_profiles",
-						"profile",
-						"vdd_levels",
-						"vdd_levels_GPU"
-					]
-				}
-			}
-		},
-		exclude: [ "kset", "stats" ]
-	}},
+					exclude: [ "all_cpus", "kset", "overall_stats", "stats", "vdd_table" ]
+				}},
 	]
 }
 CTAG

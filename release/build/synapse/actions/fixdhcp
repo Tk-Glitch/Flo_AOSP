@@ -1,4 +1,4 @@
-BB=/sbin/busybox;
+BB=/system/xbin/busybox;
 
 	svc wifi disable;
 	rm -f /data/misc/dhcp/dhcpcd*;

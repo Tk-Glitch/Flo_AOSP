@@ -1,4 +1,4 @@
-#!/system/bin sh
+#!/system/xbin/busybox sh
 
 wait ${!}
 
@@ -40,6 +40,6 @@ ln -s /data/synapse/uci /system/xbin/uci
 /system/xbin/uci
 
 # Init.d Support
-/sbin/busybox run-parts /system/etc/init.d
+/system/xbin/busybox run-parts /system/etc/init.d
 
 exit;

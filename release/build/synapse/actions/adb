@@ -1,4 +1,4 @@
-BB=/sbin/busybox;
+BB=/system/xbin/busybox;
 
 ip=`$BB ifconfig wlan0 | grep "inet addr:" | sed 's/ //' | sed 's/.*inet addr://' | sed 's/Bcast.*//'`;
 

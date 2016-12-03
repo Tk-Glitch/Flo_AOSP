@@ -1,4 +1,4 @@
-BB=/sbin/busybox;
+BB=/system/xbin/busybox;
 DEVICE=/data/synapse/files/Glitch_flo.sh;
 
 case $1 in
