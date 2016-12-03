@@ -111,7 +111,7 @@ cat << CTAG
 					}},
 						{ SGeneric:{
 							title:"RGB colors tuning",
-							description:"Here you can set the values of RGB channel. Range 0-256 per canal (higher than 256 is invalid and will break colors)",
+							description:"Here you can set the values of RGB channel. Range 0-256 per canal",
 							default:'$KCAL',
 							action:"gamma /sys/devices/platform/kcal_ctrl.0/kcal",
 						}},'

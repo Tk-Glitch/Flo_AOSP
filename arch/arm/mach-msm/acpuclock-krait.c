@@ -47,10 +47,10 @@
 
 #define SECCLKAGD		BIT(4)
 
-#define FREQ_TABLE_SIZE		47
-
 int uv_bin = 0;
 
+int pvs_number = 0;
+module_param(pvs_number, int, 0755);
 uint32_t arg_max_uv_clock = 384000;
 
 static int __init get_uv_level(char *vdd_uv)
@@ -76,7 +76,6 @@ static int __init get_uv_level(char *vdd_uv)
 }
 
 __setup("vdd_uv=", get_uv_level);
-
 
 static DEFINE_MUTEX(driver_lock);
 static DEFINE_SPINLOCK(l2_lock);
@@ -1000,7 +999,7 @@ void acpuclk_set_vdd(unsigned int khz, int vdd_uv) {
 #endif	/* CONFIG_CPU_VOTALGE_TABLE */
 
 #ifdef CONFIG_CPU_FREQ_MSM
-static struct cpufreq_frequency_table freq_table[NR_CPUS][FREQ_TABLE_SIZE];
+static struct cpufreq_frequency_table freq_table[NR_CPUS][47];
 
 static void __init cpufreq_table_init(void)
 {
@@ -1179,6 +1178,8 @@ static int __init get_pvs_bin(u32 pte_efuse)
 	} else {
 		dev_info(drv.dev, "ACPU PVS: %d\n", pvs_bin);
 	}
+	
+	pvs_number = pvs_bin;
 
 	return pvs_bin;
 }

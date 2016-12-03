@@ -80,8 +80,8 @@ elif [ "`grep IOSCHED=7 $KERNEL_CONF`" ]; then
 echo "bfq" > /sys/block/mmcblk0/queue/scheduler;
 echo io scheduler: BFQ >> $KERNEL_LOGFILE;
 else
-  echo "deadline" > /sys/block/mmcblk0/queue/scheduler;
-  echo io scheduler: deadline >> $KERNEL_LOGFILE;
+  echo "fiops" > /sys/block/mmcblk0/queue/scheduler;
+  echo io scheduler: fiops >> $KERNEL_LOGFILE;
 fi
 
 #Read-ahead
@@ -101,8 +101,8 @@ elif [ "`grep READAHEAD=5 $KERNEL_CONF`" ]; then
 echo 2048 > /sys/block/mmcblk0/queue/read_ahead_kb;
 echo Read-ahead: 2048 >> $KERNEL_LOGFILE;
 else
-  echo 256 > /sys/block/mmcblk0/queue/read_ahead_kb;
-  echo Read-ahead: 256 >> $KERNEL_LOGFILE;
+  echo 128 > /sys/block/mmcblk0/queue/read_ahead_kb;
+  echo Read-ahead: 128 >> $KERNEL_LOGFILE;
 fi
 
 #Backlight dimmer option
@@ -179,6 +179,7 @@ if [ "`grep MC_POWERSAVE=1 $KERNEL_CONF`" ]; then
   echo 2 > /sys/devices/system/cpu/sched_mc_power_savings;
   echo Maximum MC power savings >> $KERNEL_LOGFILE;
 else
+  echo 0 > /sys/devices/system/cpu/sched_mc_power_savings;
   echo MC power savings disabled >> $KERNEL_LOGFILE;
 fi
 
@@ -301,7 +302,7 @@ elif [ "`grep CPU_GOV=7 $KERNEL_CONF`" ]; then
 else
   governor=ondemand
 fi
-  echo $governor > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor;
+  echo $governor > /sys/kernel/msm_limiter/scaling_governor;
   echo CPU Governor: $governor >> $KERNEL_LOGFILE;
 
 #Backup settings to sdcard

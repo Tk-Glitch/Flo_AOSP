@@ -78,10 +78,6 @@ then
 selectbox(
   "CPU Settings","","","cpu.prop",
 
-  "Set each CPU core frequency separately","",2,
-  "No","(recommended)",1,
-  "Yes","Gives the option to set the max freq for each core individually",0,
-
   "CPU optimization level","",2,
   "stock","(1.13GHz-4.26GBps)",0,
   "improved","(1.19GHz-4.26GBps)",1,
@@ -114,8 +110,6 @@ selectbox(
   "810MHz","",0
 );
 
-if file_getprop("/tmp/aroma/cpu.prop","selected.1") == "1"
-then
 selectbox(
   "Maximum CPU Frequency","Select maximum CPU frequency\n","@info","freq0.prop",
   "1512MHz","(stock)",0,
@@ -132,78 +126,6 @@ selectbox(
   "2268MHz","",0,
   "2322MHz","(glitchy)",0
 );
-endif;
-
-if file_getprop("/tmp/aroma/cpu.prop","selected.1") == "2"
-then
-selectbox(
-  "Maximum CPU Frequency","Select maximum frequency for first CPU core\n","@menu","freq0.prop",
-  "1512MHz","(stock)",0,
-  "1620MHz","",0,
-  "1728MHz","(balanced)",1,
-  "1836MHz","",0,
-  "1890MHz","(performance)",0,
-  "1944MHz","",0,
-  "1998MHz","(high)",0,
-  "2052MHz","",0,
-  "2106MHz","(very high)",0,
-  "2160MHz","",0,
-  "2214MHz","(extreme)",0,
-  "2268MHz","",0,
-  "2322MHz","(glitchy)",0
-);
-
-selectbox(
-  "Maximum CPU Frequency","Select maximum frequency for second CPU core\n","@menu","freq1.prop",
-  "1512MHz","(stock)",0,
-  "1620MHz","",0,
-  "1728MHz","(balanced)",1,
-  "1836MHz","",0,
-  "1890MHz","(performance)",0,
-  "1944MHz","",0,
-  "1998MHz","(high)",0,
-  "2052MHz","",0,
-  "2106MHz","(very high)",0,
-  "2160MHz","",0,
-  "2214MHz","(extreme)",0,
-  "2268MHz","",0,
-  "2322MHz","(glitchy)",0
-);
-
-selectbox(
-  "Maximum CPU Frequency","Select maximum frequency for third CPU core\n","@menu","freq2.prop",
-  "1512MHz","(stock)",0,
-  "1620MHz","",0,
-  "1728MHz","(balanced)",1,
-  "1836MHz","",0,
-  "1890MHz","(performance)",0,
-  "1944MHz","",0,
-  "1998MHz","(high)",0,
-  "2052MHz","",0,
-  "2106MHz","(very high)",0,
-  "2160MHz","",0,
-  "2214MHz","(extreme)",0,
-  "2268MHz","",0,
-  "2322MHz","(glitchy)",0
-);
-
-selectbox(
-  "Maximum CPU Frequency","Select maximum frequency for fourth CPU core\n","@menu","freq3.prop",
-  "1512MHz","(stock)",0,
-  "1620MHz","",0,
-  "1728MHz","(balanced)",1,
-  "1836MHz","",0,
-  "1890MHz","(performance)",0,
-  "1944MHz","",0,
-  "1998MHz","(high)",0,
-  "2052MHz","",0,
-  "2106MHz","(very high)",0,
-  "2160MHz","",0,
-  "2214MHz","(extreme)",0,
-  "2268MHz","",0,
-  "2322MHz","(glitchy)",0
-);
-endif;
 
 selectbox(
   "Thermal & battery related Settings","","","nrg.prop",

@@ -278,9 +278,8 @@ static void set_abs(struct input_dev *input, unsigned int code,
 static void set_last_slot_field(struct hid_usage *usage, struct mt_device *td,
 		struct hid_input *hi)
 {
-	if ((BIT_WORD(usage->hid)) < (sizeof(hi->input->absbit) / sizeof(int)))
-		if (!test_bit(usage->hid, hi->input->absbit))
-			td->last_slot_field = usage->hid;
+	if (!test_bit(usage->hid, hi->input->absbit))
+		td->last_slot_field = usage->hid;
 }
 
 static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,

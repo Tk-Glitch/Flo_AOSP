@@ -35,7 +35,6 @@
 #include <linux/eventfd.h>
 #include <linux/blkdev.h>
 #include <linux/compat.h>
-#include <linux/radix-tree.h>
 
 #include <asm/kmap_types.h>
 #include <asm/uaccess.h>
@@ -286,18 +285,10 @@ static struct kioctx *ioctx_alloc(unsigned nr_events)
 	aio_nr += ctx->max_reqs;
 	spin_unlock(&aio_nr_lock);
 
-	/* now insert into the radix tree */
-	err = radix_tree_preload(GFP_KERNEL);
-	if (err)
-		goto out_cleanup;
+	/* now link into global list. */
 	spin_lock(&mm->ioctx_lock);
-	err = radix_tree_insert(&mm->ioctx_rtree, ctx->user_id, ctx);
+	hlist_add_head_rcu(&ctx->list, &mm->ioctx_list);
 	spin_unlock(&mm->ioctx_lock);
-	radix_tree_preload_end();
-	if (err) {
-		WARN_ONCE(1, "aio: insert into ioctx tree failed: %d", err);
-		goto out_cleanup;
-	}
 
 	dprintk("aio: allocated ioctx %p[%ld]: mm=%p mask=0x%x\n",
 		ctx, ctx->user_id, current->mm, ctx->ring_info.nr);
@@ -375,32 +366,6 @@ ssize_t wait_on_sync_kiocb(struct kiocb *iocb)
 }
 EXPORT_SYMBOL(wait_on_sync_kiocb);
 
-static inline void exit_aio_ctx(struct mm_struct *mm, struct kioctx *ctx)
-{
-	void *ret;
-
-	ret = radix_tree_delete(&mm->ioctx_rtree, ctx->user_id);
-	BUG_ON(!ret || ret != ctx);
-
-	kill_ctx(ctx);
-
-	if (1 != atomic_read(&ctx->users))
-		pr_debug("exit_aio:ioctx still alive: %d %d %d\n",
-			 atomic_read(&ctx->users), ctx->dead, ctx->reqs_active);
-	/*
-	 * We don't need to bother with munmap() here -
-	 * exit_mmap(mm) is coming and it'll unmap everything.
-	 * Since aio_free_ring() uses non-zero ->mmap_size
-	 * as indicator that it needs to unmap the area,
-	 * just set it to 0; aio_free_ring() is the only
-	 * place that uses ->mmap_size, so it's safe.
-	 * That way we get all munmap done to current->mm -
-	 * all other callers have ctx->mm == current->mm.
-	 */
-	ctx->ring_info.mmap_size = 0;
-	put_ioctx(ctx);
-}
-
 /* exit_aio: called when the last user of mm goes away.  At this point, 
  * there is no way for any new requests to be submited or any of the 
  * io_* syscalls to be called on the context.  However, there may be 
@@ -410,17 +375,32 @@ static inline void exit_aio_ctx(struct mm_struct *mm, struct kioctx *ctx)
  */
 void exit_aio(struct mm_struct *mm)
 {
-	struct kioctx *ctx[16];
-	int count;
+	struct kioctx *ctx;
 
-	do {
-		int i;
+	while (!hlist_empty(&mm->ioctx_list)) {
+		ctx = hlist_entry(mm->ioctx_list.first, struct kioctx, list);
+		hlist_del_rcu(&ctx->list);
 
-		count = radix_tree_gang_lookup(&mm->ioctx_rtree, (void **)ctx,
-					       0, ARRAY_SIZE(ctx));
-		for (i = 0; i < count; i++)
-			exit_aio_ctx(mm, ctx[i]);
-	} while (count);
+		kill_ctx(ctx);
+
+		if (1 != atomic_read(&ctx->users))
+			printk(KERN_DEBUG
+				"exit_aio:ioctx still alive: %d %d %d\n",
+				atomic_read(&ctx->users), ctx->dead,
+				ctx->reqs_active);
+		/*
+		 * We don't need to bother with munmap() here -
+		 * exit_mmap(mm) is coming and it'll unmap everything.
+		 * Since aio_free_ring() uses non-zero ->mmap_size
+		 * as indicator that it needs to unmap the area,
+		 * just set it to 0; aio_free_ring() is the only
+		 * place that uses ->mmap_size, so it's safe.
+		 * That way we get all munmap done to current->mm -
+		 * all other callers have ctx->mm == current->mm.
+		 */
+		ctx->ring_info.mmap_size = 0;
+		put_ioctx(ctx);
+	}
 }
 
 /* aio_get_req
@@ -675,18 +655,22 @@ static struct kioctx *lookup_ioctx(unsigned long ctx_id)
 {
 	struct mm_struct *mm = current->mm;
 	struct kioctx *ctx, *ret = NULL;
+	struct hlist_node *n;
 
 	rcu_read_lock();
 
-	ctx = radix_tree_lookup(&mm->ioctx_rtree, ctx_id);
-	/*
-	 * RCU protects us against accessing freed memory but
-	 * we have to be careful not to get a reference when the
-	 * reference count already dropped to 0 (ctx->dead test
-	 * is unreliable because of races).
-	 */
-	if (ctx && !ctx->dead && try_get_ioctx(ctx))
-		ret = ctx;
+	hlist_for_each_entry_rcu(ctx, n, &mm->ioctx_list, list) {
+		/*
+		 * RCU protects us against accessing freed memory but
+		 * we have to be careful not to get a reference when the
+		 * reference count already dropped to 0 (ctx->dead test
+		 * is unreliable because of races).
+		 */
+		if (ctx->user_id == ctx_id && !ctx->dead && try_get_ioctx(ctx)){
+			ret = ctx;
+			break;
+		}
+	}
 
 	rcu_read_unlock();
 	return ret;
@@ -995,10 +979,6 @@ int aio_complete(struct kiocb *iocb, long res, long res2)
 		iocb->ki_users = 0;
 		wake_up_process(iocb->ki_obj.tsk);
 		return 1;
-	} else if (is_kernel_kiocb(iocb)) {
-		iocb->ki_obj.complete(iocb->ki_user_data, res);
-		aio_kernel_free(iocb);
-		return 0;
 	}
 
 	info = &ctx->ring_info;
@@ -1285,7 +1265,7 @@ static void io_destroy(struct kioctx *ioctx)
 	spin_lock(&mm->ioctx_lock);
 	was_dead = ioctx->dead;
 	ioctx->dead = 1;
-	radix_tree_delete(&mm->ioctx_rtree, ioctx->user_id);
+	hlist_del_rcu(&ioctx->list);
 	spin_unlock(&mm->ioctx_lock);
 
 	dprintk("aio_release(%p)\n", ioctx);
@@ -1590,94 +1570,6 @@ static ssize_t aio_setup_iocb(struct kiocb *kiocb, bool compat)
 
 	return 0;
 }
-
- /*
- * This allocates an iocb that will be used to submit and track completion of
- * an IO that is issued from kernel space.
- *
- * The caller is expected to call the appropriate aio_kernel_init_() functions
- * and then call aio_kernel_submit().  From that point forward progress is
- * guaranteed by the file system aio method.  Eventually the caller's
- * completion callback will be called.
- *
- * These iocbs are special.  They don't have a context, we don't limit the
- * number pending, they can't be canceled, and can't be retried.  In the short
- * term callers need to be careful not to call operations which might retry by
- * only calling new ops which never add retry support.  In the long term
- * retry-based AIO should be removed.
- */
-struct kiocb *aio_kernel_alloc(gfp_t gfp)
-{
-	struct kiocb *iocb = kzalloc(sizeof(struct kiocb), gfp);
-	if (iocb)
-		iocb->ki_key = KIOCB_KERNEL_KEY;
-	return iocb;
-}
-EXPORT_SYMBOL_GPL(aio_kernel_alloc);
-
-void aio_kernel_free(struct kiocb *iocb)
-{
-	kfree(iocb);
-}
-EXPORT_SYMBOL_GPL(aio_kernel_free);
-
-/*
- * ptr and count can be a buff and bytes or an iov and segs.
- */
-void aio_kernel_init_rw(struct kiocb *iocb, struct file *filp,
-			unsigned short op, void *ptr, size_t nr, loff_t off)
-{
-	iocb->ki_filp = filp;
-	iocb->ki_opcode = op;
-	iocb->ki_buf = (char __user *)(unsigned long)ptr;
-	iocb->ki_left = nr;
-	iocb->ki_nbytes = nr;
-	iocb->ki_pos = off;
-}
-EXPORT_SYMBOL_GPL(aio_kernel_init_rw);
-
-void aio_kernel_init_callback(struct kiocb *iocb,
-			      void (*complete)(u64 user_data, long res),
-			      u64 user_data)
-{
-	iocb->ki_obj.complete = complete;
-	iocb->ki_user_data = user_data;
-}
-EXPORT_SYMBOL_GPL(aio_kernel_init_callback);
-
-/*
- * The iocb is our responsibility once this is called.  The caller must not
- * reference it.  This comes from aio_setup_iocb() modifying the iocb.
- *
- * Callers must be prepared for their iocb completion callback to be called the
- * moment they enter this function.  The completion callback may be called from
- * any context.
- *
- * Returns: 0: the iocb completion callback will be called with the op result
- * negative errno: the operation was not submitted and the iocb was freed
- */
-int aio_kernel_submit(struct kiocb *iocb)
-{
-	int ret;
-
-	BUG_ON(!is_kernel_kiocb(iocb));
-	BUG_ON(!iocb->ki_obj.complete);
-	BUG_ON(!iocb->ki_filp);
-
-	ret = aio_setup_iocb(iocb, 0);
-	if (ret) {
-		aio_kernel_free(iocb);
-		return ret;
-	}
-
-	ret = iocb->ki_retry(iocb);
-	BUG_ON(ret == -EIOCBRETRY);
-	if (ret != -EIOCBQUEUED)
-		aio_complete(iocb, ret, 0);
-
-	return 0;
-}
-EXPORT_SYMBOL_GPL(aio_kernel_submit);
 
 static int io_submit_one(struct kioctx *ctx, struct iocb __user *user_iocb,
 			 struct iocb *iocb, struct kiocb_batch *batch,

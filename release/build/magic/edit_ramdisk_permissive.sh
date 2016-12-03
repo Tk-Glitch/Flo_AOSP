@@ -10,8 +10,12 @@ rm /tmp/initrd.img
 #Start glitch script
 if [ -f "/tmp/ramdisk/init.rc" ]; then
 if [ $(grep -c "import /init.glitch.rc" /tmp/ramdisk/init.rc) == 0 ]; then
-   sed -i 's/.*on early-init.*/import \/init.glitch.rc\n\n&/' /tmp/ramdisk/init.rc
+   sed -i "/import \/init\.environ\.rc/aimport /init.glitch.rc" /tmp/ramdisk/init.rc
 fi
+fi
+
+if [ -f "/tmp/ramdisk/init.elementalx.rc" ]; then
+rm /tmp/ramdisk/init.elementalx.rc
 fi
 
 #disable selinux enforcing
@@ -33,12 +37,11 @@ fi
 #fi
 
 #remove install_recovery
-if [ $(grep -c "#seclabel u:r:install_recovery:s0" /tmp/ramdisk/init.rc) == 0 ]; then
+if [ $(grep -c "#seclabel u:r:install_recovery:s0" /tmp/ramdisk/init.rc) == 0 ] && [ $(grep -c "seclabel u:r:install_recovery:s0" /tmp/ramdisk/init.rc) == 1 ]; then
    sed -i "s/seclabel u:r:install_recovery:s0/#seclabel u:r:install_recovery:s0/" /tmp/ramdisk/init.rc
 fi
 
 #add init.d support if needed
-if [ $(grep -c "init.d" /tmp/ramdisk/init.rc) == 0 ]; then
 if [ !$(grep -qr "init.d" /tmp/ramdisk/*) ]; then
    echo "" >> /tmp/ramdisk/init.rc
    echo "service userinit /system/sbin/busybox run-parts /system/etc/init.d" >> /tmp/ramdisk/init.rc
@@ -46,7 +49,6 @@ if [ !$(grep -qr "init.d" /tmp/ramdisk/*) ]; then
    echo "    class late_start" >> /tmp/ramdisk/init.rc
    echo "    user root" >> /tmp/ramdisk/init.rc
    echo "    group root" >> /tmp/ramdisk/init.rc
-fi
 fi
 
 #remove governor overrides, use kernel default
@@ -88,14 +90,14 @@ fi
 
 #Cache partition
 if [ $CACHE_F2FS -eq 0 ]; then
-sed -i 's/.*by-name\/cache.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/cache        \/cache          f2fs    rw,nosuid,nodev,noatime,nodiratime,inline_xattr                              wait,check,formattable/g' /tmp/ramdisk/fstab.flo
+sed -i 's/.*by-name\/cache.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/cache        \/cache          f2fs    rw,nosuid,nodev,noatime,inline_xattr                              wait,check,formattable/g' /tmp/ramdisk/fstab.flo
 else
 sed -i 's/.*by-name\/cache.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/cache        \/cache          ext4    noatime,nosuid,nodev,barrier=1,data=ordered,noauto_da_alloc,errors=panic     wait,check,formattable/g' /tmp/ramdisk/fstab.flo
 fi
 
 #Data partition
 if [ $DATA_F2FS -eq 0 ]; then
-sed -i 's/.*by-name\/userdata.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/userdata     \/data           f2fs    rw,nosuid,nodev,noatime,nodiratime,inline_xattr                              wait,check,formattable,encryptable=\/dev\/block\/platform\/msm_sdcc.1\/by-name\/metadata/g' /tmp/ramdisk/fstab.flo
+sed -i 's/.*by-name\/userdata.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/userdata     \/data           f2fs    rw,nosuid,nodev,noatime,inline_xattr                              wait,check,formattable,encryptable=\/dev\/block\/platform\/msm_sdcc.1\/by-name\/metadata/g' /tmp/ramdisk/fstab.flo
 else
 sed -i 's/.*by-name\/userdata.*/\/dev\/block\/platform\/msm_sdcc.1\/by-name\/userdata     \/data           ext4    noatime,nosuid,nodev,barrier=1,data=ordered,noauto_da_alloc,errors=panic     wait,check,formattable,encryptable=\/dev\/block\/platform\/msm_sdcc.1\/by-name\/metadata/g' /tmp/ramdisk/fstab.flo
 fi
@@ -111,8 +113,6 @@ cp /tmp/glitch.sh /tmp/ramdisk/sbin/glitch.sh
 chmod 755 /tmp/ramdisk/sbin/glitch.sh
 cp /tmp/init.glitch.rc /tmp/ramdisk/init.glitch.rc
 chmod 750 /tmp/ramdisk/init.glitch.rc
-cp -r /tmp/res /tmp/ramdisk
-chmod -R 777 /tmp/ramdisk/res
 
 #repack
 find . | cpio -o -H newc | gzip > /tmp/initrd.img

@@ -23,7 +23,7 @@
 #include "acpuclock-krait.h"
 #include "vdd_limits_8064.h"
 
-int opt_bin = 1;
+int opt_bin = 1; 
 
 static struct hfpll_data hfpll_data __initdata = {
 	.mode_offset = 0x00,
