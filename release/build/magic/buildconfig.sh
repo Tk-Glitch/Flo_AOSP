@@ -1,7 +1,7 @@
 #!/sbin/sh
 
 #Build config file
-CONFIGFILE="/tmp/glitch-settings.conf"
+CONFIGFILE="/tmp/glitch-settings.tmp.conf"
 
 #Fast Charge
 FAST_CHARGE=`grep "item.0.1" /tmp/aroma/misc.prop | cut -d '=' -f2`
@@ -384,13 +384,6 @@ echo -e "# 3 810MHz\n# 4 1026MHz\n# 5 1242MHz\n" >> $CONFIGFILE
 echo "SCROFF=0" >> $CONFIGFILE;
 fi
 
-echo -e "\n\n####################################################################" >> $CONFIGFILE
-echo -e "# Anything past this is a backup of your initialization settings   #" >> $CONFIGFILE
-echo -e "# for Aroma Installer to restore them if asked.                    #" >> $CONFIGFILE
-echo -e "# Edit these lines only if you're planning to reinstall the kernel #" >> $CONFIGFILE
-echo -e "# and restore settings, as they won't be applied outside of Aroma. #" >> $CONFIGFILE
-echo -e "####################################################################\n\n" >> $CONFIGFILE
-
 #Permissive Selinux
 PERMISSIVE=`grep "item.0.7" /tmp/aroma/misc.prop | cut -d '=' -f2`
 echo -e "\n\n##### Enforce Selinux #####\n# 0 for default" >> $CONFIGFILE
@@ -456,4 +449,9 @@ else
 fi
 
 echo -e "\n\n##############################" >> $CONFIGFILE
+
+wait ${!}
+
+mv /tmp/glitch-settings.tmp.conf /tmp/glitch-settings.conf
+
 #END

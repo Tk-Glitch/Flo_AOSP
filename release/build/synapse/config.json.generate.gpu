@@ -116,7 +116,6 @@ cat << CTAG
 							action:"gamma /sys/devices/platform/kcal_ctrl.0/kcal",
 						}},'
 				fi
-				fi
 			fi`
 			`if [ -f "/sys/module/msm_fb/parameters/backlight_dimmer" ]; then
  			BLKD=\`$BB cat /sys/module/msm_fb/parameters/backlight_dimmer\`;

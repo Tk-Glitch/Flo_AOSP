@@ -299,21 +299,11 @@ case "$1" in
 		else
 			MSM_HOTPLUG=Inactive;
 		fi;
-		if [ "$(cat /sys/module/lazyplug/parameters/lazyplug_active)" -eq "1" ]; then
-			LAZYPLUG=Active;
-		else
-			LAZYPLUG=Inactive;
-		fi;
-		if [ "$(cat /sys/module/intelli_plug/parameters/intelli_plug_active)" -eq "1" ]; then
-			INTELLI_PLUG=Active;
-		else
-			INTELLI_PLUG=Inactive;
-		fi;
 		if [ "$(cat /sys/module/msm_mpdecision/parameters/enabled)" -eq "1" ]; then
 			MSM_MPDECISION=Active;
 		else
 			MSM_MPDECISION=Inactive;
 		fi;
-		$BB echo "Lazyplug: $LAZYPLUG@nMSM Hotplug: $MSM_HOTPLUG@nIntelli Plug: $INTELLI_PLUG@nMSM MPDECISION: $MSM_MPDECISION"
+		$BB echo "MSM Hotplug: $MSM_HOTPLUG@nMSM MPDECISION: $MSM_MPDECISION"
 	;;
 esac;

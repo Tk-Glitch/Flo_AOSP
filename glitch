@@ -158,6 +158,7 @@ cp -r $KERNEL_DIR/release/build/magic $KERNEL_DIR/release/build/aroma/magic
 cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/aroma/magic/glitch.zImage
 cp -r $KERNEL_DIR/release/build/META-INF-aroma $KERNEL_DIR/release/build/aroma/META-INF
 cp -r $KERNEL_DIR/release/build/synapse $KERNEL_DIR/release/build/aroma/synapse
+cp -r $KERNEL_DIR/release/build/system $KERNEL_DIR/release/build/aroma/system
 
 #Restore
 mkdir -p $KERNEL_DIR/release/build/restore
@@ -165,6 +166,7 @@ cp -r $KERNEL_DIR/release/build/magic $KERNEL_DIR/release/build/restore/magic
 cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/restore/magic/glitch.zImage
 cp -r $KERNEL_DIR/release/build/META-INF-restore $KERNEL_DIR/release/build/restore/META-INF
 cp -r $KERNEL_DIR/release/build/synapse $KERNEL_DIR/release/build/restore/synapse
+cp -r $KERNEL_DIR/release/build/system $KERNEL_DIR/release/build/restore/system
 
 echo "Setting date & version in Aroma conf ("$(date +%B)" "$(date +%e)" "$(date +%Y)"),"
 
@@ -189,7 +191,7 @@ mkdir -p $KERNEL_DIR/release/$target_device-out
 cd $KERNEL_DIR/release/build/aroma
 REL=Glitch-N.$target_name.r$counter$target_variant-Full.zip
 
-	zip -q -r ${REL} magic META-INF synapse
+	zip -q -r ${REL} magic META-INF synapse system
 	#sha256sum ${REL} > ${REL}.sha256sum
 	mv ${REL}* $KERNEL_DIR/release/$target_device-out/
 
@@ -197,7 +199,7 @@ REL=Glitch-N.$target_name.r$counter$target_variant-Full.zip
 cd $KERNEL_DIR/release/build/restore
 REL2=Glitch-N.$target_name.r$counter$target_variant-Pure.zip
 
-	zip -q -r ${REL2} magic META-INF synapse
+	zip -q -r ${REL2} magic META-INF synapse system
 	#sha256sum ${REL2} > ${REL2}.sha256sum
 	mv ${REL2}* $KERNEL_DIR/release/$target_device-out/
 

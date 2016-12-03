@@ -7,6 +7,25 @@ gunzip -c /tmp/ramdisk/initrd.gz | cpio -i
 rm /tmp/ramdisk/initrd.gz
 rm /tmp/initrd.img
 
+. /tmp/glitch-settings.conf
+
+#I/O scheduler // Fixup for CM14.1
+if [ $(grep -c "setprop sys.io.scheduler" /tmp/ramdisk/init.flo.power.rc) == 1 ]; then
+if [ "$IOSCHED" == "1" ]; then
+  sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler cfq/" /tmp/ramdisk/init.flo.power.rc
+elif [ "$IOSCHED" == "2" ]; then
+  sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler fiops/" /tmp/ramdisk/init.flo.power.rc
+elif [ "$IOSCHED" == "3" ]; then
+  sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler sio/" /tmp/ramdisk/init.flo.power.rc
+elif [ "$IOSCHED" == "5" ]; then
+  sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler noop/" /tmp/ramdisk/init.flo.power.rc
+elif [ "$IOSCHED" == "6" ]; then
+  sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler bfq/" /tmp/ramdisk/init.flo.power.rc
+else
+  sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler deadline/" /tmp/ramdisk/init.flo.power.rc
+fi
+fi
+
 #Start glitch script
 if [ -f "/tmp/ramdisk/init.rc" ]; then
 if [ $(grep -c "import /init.glitch.rc" /tmp/ramdisk/init.rc) == 0 ]; then
@@ -14,25 +33,23 @@ if [ $(grep -c "import /init.glitch.rc" /tmp/ramdisk/init.rc) == 0 ]; then
 fi
 fi
 
-if [ -f "/tmp/ramdisk/init.elementalx.rc" ]; then
-rm /tmp/ramdisk/init.elementalx.rc
-fi
-
+if [ "$PERMISSIVE" == "1" ]; then
 #disable selinux enforcing
-#if [ $(grep -c "setenforce 0" /tmp/ramdisk/init.rc) == 0 ] && [ $(grep -c "setenforce 1" /tmp/ramdisk/init.rc) == 0 ]; then
-#   sed -i "s/setcon u:r:init:s0/setcon u:r:init:s0\n    setenforce 0/" /tmp/ramdisk/init.rc
-#else
-#if [ $(grep -c "setenforce 1" /tmp/ramdisk/init.rc) == 1 ]; then
-#   sed -i "s/setenforce 1/setenforce 0/" /tmp/ramdisk/init.rc
-#fi
-#fi
-
+if [ $(grep -c "setenforce 0" /tmp/ramdisk/init.rc) == 0 ] && [ $(grep -c "setenforce 1" /tmp/ramdisk/init.rc) == 0 ]; then
+   sed -i "s/setcon u:r:init:s0/setcon u:r:init:s0\n    setenforce 0/" /tmp/ramdisk/init.rc
+else
+if [ $(grep -c "setenforce 1" /tmp/ramdisk/init.rc) == 1 ]; then
+   sed -i "s/setenforce 1/setenforce 0/" /tmp/ramdisk/init.rc
+fi
+fi
+else
 #enable selinux enforcing
 if [ $(grep -c "setenforce 0" /tmp/ramdisk/init.rc) == 0 ] && [ $(grep -c "setenforce 1" /tmp/ramdisk/init.rc) == 0 ]; then
    sed -i "s/setcon u:r:init:s0/setcon u:r:init:s0\n    setenforce 1/" /tmp/ramdisk/init.rc
 else
 if [ $(grep -c "setenforce 0" /tmp/ramdisk/init.rc) == 1 ]; then
    sed -i "s/setenforce 0/setenforce 1/" /tmp/ramdisk/init.rc
+fi
 fi
 fi
 
@@ -42,6 +59,7 @@ if [ $(grep -c "#seclabel u:r:install_recovery:s0" /tmp/ramdisk/init.rc) == 0 ] 
 fi
 
 #add init.d support if needed
+if [ $(grep -c "init.d" /tmp/ramdisk/init.rc) == 0 ]; then
 if [ !$(grep -qr "init.d" /tmp/ramdisk/*) ]; then
    echo "" >> /tmp/ramdisk/init.rc
    echo "service userinit /system/sbin/busybox run-parts /system/etc/init.d" >> /tmp/ramdisk/init.rc
@@ -50,6 +68,7 @@ if [ !$(grep -qr "init.d" /tmp/ramdisk/*) ]; then
    echo "    user root" >> /tmp/ramdisk/init.rc
    echo "    group root" >> /tmp/ramdisk/init.rc
 fi
+fi
 
 #remove governor overrides, use kernel default
 sed -i '/\/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
@@ -57,7 +76,7 @@ sed -i '/\/sys\/devices\/system\/cpu\/cpu1\/cpufreq\/scaling_governor/d' /tmp/ra
 sed -i '/\/sys\/devices\/system\/cpu\/cpu2\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
 sed -i '/\/sys\/devices\/system\/cpu\/cpu3\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
 
-#restore fstab backup
+#restore fstab backup if any to prevent overwriting the original with the backup coming next
 if [ -f "/tmp/ramdisk/fstab.orig" ]; then
 rm /tmp/ramdisk/fstab.flo
 mv /tmp/ramdisk/fstab.orig /tmp/ramdisk/fstab.flo
@@ -66,7 +85,8 @@ fi
 #backup fstab
 cp /tmp/ramdisk/fstab.flo /tmp/ramdisk/fstab.orig
 
-#Check for F2FS and change fstab accordingly in ramdisk except for cm or if F2FS is found in the original fstab
+#Check F2FS partitions and change fstab accordingly except for cm or if F2FS is found in the original fstab.
+#Though it will break /system as F2FS on CM and most of the hybrid roms as a result.
 
 if [ ! -f "/tmp/ramdisk/init.cm.rc" ] || [ $(grep -c "f2fs" /tmp/ramdisk/fstab.flo) == 0 ]; then
 
@@ -109,10 +129,18 @@ fi
 #copy glitch scripts & bb
 cp /tmp/busybox /tmp/ramdisk/sbin/busybox
 chmod 755 /tmp/ramdisk/sbin/busybox
-cp /tmp/glitch.sh /tmp/ramdisk/sbin/glitch.sh
-chmod 755 /tmp/ramdisk/sbin/glitch.sh
+
 cp /tmp/init.glitch.rc /tmp/ramdisk/init.glitch.rc
-chmod 750 /tmp/ramdisk/init.glitch.rc
+chmod 755 /tmp/ramdisk/init.glitch.rc
+cp /tmp/init.synapse.sh /tmp/ramdisk/sbin/init.synapse.sh
+chmod 755 /tmp/ramdisk/sbin/init.synapse.sh
+
+if [ -f "/tmp/ramdisk/sbin/glitch.sh" ]; then
+rm /tmp/ramdisk/sbin/glitch.sh
+fi
+if [ -f "/tmp/ramdisk/init.elementalx.rc" ]; then
+rm /tmp/ramdisk/init.elementalx.rc
+fi
 
 #repack
 find . | cpio -o -H newc | gzip > /tmp/initrd.img
