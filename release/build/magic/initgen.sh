@@ -51,7 +51,6 @@ chmod 666 /tmp/glitch-settings.conf
 INIT="/tmp/init.glitch.rc"
 l2_opt="l2_opt="$L2_OC;
 vdd_uv="vdd_uv="$UV_LEVEL;
-
 null="abc"
 
 echo "on early-init" >> $INIT
@@ -62,15 +61,6 @@ echo "on boot" >> $INIT
 echo "" >> $INIT
 
 ####################################################################
-
-#Permissive Selinux
-if [ "$PERMISSIVE" == "1" ]; then
-  echo "write /sys/fs/selinux/enforce 0" >> $INIT
-  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=0" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
-else
-  echo "write /sys/fs/selinux/enforce 1" >> $INIT
-  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=1" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
-fi
 
 # KSM options
 echo "write /sys/kernel/mm/ksm/sleep_millisecs 1000" >> $INIT
@@ -189,6 +179,15 @@ fi
 echo "" >> $INIT
 echo "on property:sys.boot_completed=1" >> $INIT
 echo "" >> $INIT
+
+#Permissive Selinux
+if [ "$PERMISSIVE" == "1" ]; then
+  echo "write /sys/fs/selinux/enforce 0" >> $INIT
+  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=0" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
+else
+  echo "write /sys/fs/selinux/enforce 1" >> $INIT
+  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=1" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
+fi
 
 #read-ahead
 if [ "$READAHEAD" == "2" ]; then

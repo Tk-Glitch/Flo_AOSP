@@ -33,10 +33,11 @@ if [ $(grep -c "import /init.glitch.rc" /tmp/ramdisk/init.rc) == 0 ]; then
 fi
 fi
 
+
 if [ "$PERMISSIVE" == "1" ]; then
 #disable selinux enforcing
 if [ $(grep -c "setenforce 0" /tmp/ramdisk/init.rc) == 0 ] && [ $(grep -c "setenforce 1" /tmp/ramdisk/init.rc) == 0 ]; then
-   sed -i "s/setcon u:r:init:s0/setcon u:r:init:s0\n    setenforce 0/" /tmp/ramdisk/init.rc
+   sed -i "/on early-init/a    setenforce 0" /tmp/ramdisk/init.rc
 else
 if [ $(grep -c "setenforce 1" /tmp/ramdisk/init.rc) == 1 ]; then
    sed -i "s/setenforce 1/setenforce 0/" /tmp/ramdisk/init.rc
@@ -45,7 +46,7 @@ fi
 else
 #enable selinux enforcing
 if [ $(grep -c "setenforce 0" /tmp/ramdisk/init.rc) == 0 ] && [ $(grep -c "setenforce 1" /tmp/ramdisk/init.rc) == 0 ]; then
-   sed -i "s/setcon u:r:init:s0/setcon u:r:init:s0\n    setenforce 1/" /tmp/ramdisk/init.rc
+   sed -i "/on early-init/a    setenforce 1" /tmp/ramdisk/init.rc
 else
 if [ $(grep -c "setenforce 0" /tmp/ramdisk/init.rc) == 1 ]; then
    sed -i "s/setenforce 0/setenforce 1/" /tmp/ramdisk/init.rc
@@ -53,10 +54,13 @@ fi
 fi
 fi
 
+#Add Selinux wanted status to uci script - This way works on CM14.1
+sed -i "/BB=\/system\/xbin\/busybox\;/aPERMISSIVE=$PERMISSIVE" /tmp/synapse/uci
+
 #remove install_recovery
-if [ $(grep -c "#seclabel u:r:install_recovery:s0" /tmp/ramdisk/init.rc) == 0 ] && [ $(grep -c "seclabel u:r:install_recovery:s0" /tmp/ramdisk/init.rc) == 1 ]; then
-   sed -i "s/seclabel u:r:install_recovery:s0/#seclabel u:r:install_recovery:s0/" /tmp/ramdisk/init.rc
-fi
+#if [ $(grep -c "#start flash_recovery" /tmp/ramdisk/init.rc) == 0 ] && [ $(grep -c "start flash_recovery" /tmp/ramdisk/init.rc) == 1 ]; then
+#   sed -i "s/start flash_recovery/#start flash_recovery/" /tmp/ramdisk/init.rc
+#fi
 
 #add init.d support if needed
 if [ $(grep -c "init.d" /tmp/ramdisk/init.rc) == 0 ]; then

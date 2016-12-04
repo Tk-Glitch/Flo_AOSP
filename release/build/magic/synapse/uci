@@ -1,5 +1,8 @@
 #!/system/xbin/busybox sh
 
+# Synapse support
+# Also used as a HaX when the coffee machine is borked
+
 BB=/system/xbin/busybox;
 
 DEVICE=`sh /res/synapse/files/Glitch_flo.sh`;
@@ -8,8 +11,19 @@ UCI_ACTION=/res/synapse/actions/;
 DEBUG=/res/synapse/debug;
 SYNAPSE_SD_DIR=/sdcard/Synapse;
 
+#Selinux check
+SECHECK=`cat /sys/fs/selinux/enforce`;
+
 	$BB mount -t rootfs -o rw,remount rootfs;
 	$BB chmod -R 755 /res/synapse;
+
+	#Selinux switch
+	if [ $PERMISSIVE == "1" ] && [ "$SECHECK" == 1 ]; then
+		setenforce 0
+	fi
+	if [ $PERMISSIVE == "0" ] && [ "$SECHECK" == 0 ]; then
+		setenforce 1
+	fi
 
 if [ ! -f $UCI_CONFIG ]; then
 
