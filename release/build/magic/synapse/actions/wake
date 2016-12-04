@@ -7,7 +7,7 @@ if [ -f $1 ]; then
 		$BB mount -o remount,rw /;
 
 		$BB echo $2 > $1 2> /dev/null;
-		WAKE_PROF=`cat /data/synapse/files/wake_prof`;
+		WAKE_PROF=`cat /res/synapse/files/wake_prof`;
 
 		if [ $2 -eq 1 ]; then
 			if [ "$1" == "/sys/devices/virtual/misc/touchwake/enabled" ] && [ -f "/sys/devices/virtual/input/lge_touch/dt_wake_enabled" ]; then
@@ -33,7 +33,7 @@ if [ -f $1 ]; then
 			$BB chmod 775 $INITD/WAKE 2> /dev/null;
 		fi;
 		
-		if [ $WAKE_PROF -eq 1 ] && [ -f "$INITD/WAKE" ] && [ "$1" != "/data/synapse/files/wake_prof" ] && [ $2 -eq 1 ]; then
+		if [ $WAKE_PROF -eq 1 ] && [ -f "$INITD/WAKE" ] && [ "$1" != "/res/synapse/files/wake_prof" ] && [ $2 -eq 1 ]; then
 			if [ ! "`$BB grep $PATH $INITD/WAKE`" ]; then
 				$BB mount -o remount,rw /system 2> /dev/null;
 				$BB mount -t rootfs -o remount,rw rootfs 2> /dev/null;
@@ -43,7 +43,7 @@ if [ -f $1 ]; then
 			fi;
 		fi;
 		
-		if [ $WAKE_PROF -eq 1 ] && [ -f "$INITD/WAKE" ] && [ "$1" != "/data/synapse/files/wake_prof" ] && [ $2 -eq 0 ]; then
+		if [ $WAKE_PROF -eq 1 ] && [ -f "$INITD/WAKE" ] && [ "$1" != "/res/synapse/files/wake_prof" ] && [ $2 -eq 0 ]; then
 			$BB mount -o remount,rw /system 2> /dev/null;
 			$BB mount -t rootfs -o remount,rw rootfs 2> /dev/null;
 			$BB chown -R root:root $INITD 2> /dev/null;

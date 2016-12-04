@@ -41,6 +41,32 @@ else
   echo "BLD=0" >> $CONFIGFILE;
 fi
 
+#Max screen off frequency
+if [ -f "/tmp/aroma/maxscroff.prop" ];
+then
+SCROFF=`cat /tmp/aroma/maxscroff.prop | cut -d '=' -f2`
+echo -e "\n\n##### Max screen off frequency ######\n# 0 disabled\n# 1 594MHz\n# 2 702MHz" >> $CONFIGFILE
+echo -e "# 3 810MHz\n# 4 1026MHz\n# 5 1242MHz\n" >> $CONFIGFILE
+if [ "$SCROFF" = 1 ]; then
+  echo "SCROFF=1" >> $CONFIGFILE;
+elif [ "$SCROFF" = 2 ]; then
+  echo "SCROFF=2" >> $CONFIGFILE;
+elif [ "$SCROFF" = 3 ]; then
+  echo "SCROFF=3" >> $CONFIGFILE;
+elif [ "$SCROFF" = 4 ]; then
+  echo "SCROFF=4" >> $CONFIGFILE;
+elif [ "$SCROFF" = 5 ]; then
+  echo "SCROFF=5" >> $CONFIGFILE;
+else
+  echo "SCROFF=0" >> $CONFIGFILE;
+fi
+else
+echo "selected.0=99" > /tmp/aroma/maxscroff.prop
+echo -e "\n\n##### Max screen off frequency ######\n# 0 disabled\n# 1 594MHz\n# 2 702MHz" >> $CONFIGFILE
+echo -e "# 3 810MHz\n# 4 1026MHz\n# 5 1242MHz\n" >> $CONFIGFILE
+echo "SCROFF=0" >> $CONFIGFILE;
+fi
+
 #MC Power Savings
 MC_POWERSAVE=`grep "item.0.6" /tmp/aroma/misc.prop | cut -d '=' -f2`
 echo -e "\n\n##### MC Power savings Settings #####\n# 0 to disable MC power savings" >> $CONFIGFILE
@@ -51,20 +77,94 @@ else
   echo "MC_POWERSAVE=0" >> $CONFIGFILE;
 fi
 
-#DT2W
-DT2W=`grep "item.0.8" /tmp/aroma/misc.prop | cut -d '=' -f2`
-echo -e "\n\n##### Enable DT2W #####\n# 0 to disable" >> $CONFIGFILE
-echo -e "# 1 to enable DT2W\n" >> $CONFIGFILE
-if [ "$DT2W" = 1 ]; then
-  echo "DT2W=1" >> $CONFIGFILE;
+#Permissive Selinux
+PERMISSIVE=`grep "item.0.7" /tmp/aroma/misc.prop | cut -d '=' -f2`
+echo -e "\n\n##### Enforce Selinux #####\n# 0 for default" >> $CONFIGFILE
+echo -e "# 1 to enable permissive Selinux\n" >> $CONFIGFILE
+if [ "$PERMISSIVE" = 1 ]; then
+  echo "PERMISSIVE=1" >> $CONFIGFILE;
 else
-  echo "DT2W=0" >> $CONFIGFILE;
+  echo "PERMISSIVE=0" >> $CONFIGFILE;
+fi
+
+#Fsync
+FSYNC=`grep "item.0.8" /tmp/aroma/misc.prop | cut -d '=' -f2`
+echo -e "\n\n##### Disable Fsync #####\n# 0 to keep Fsync enabled" >> $CONFIGFILE
+echo -e "# 1 to disable Fsync\n" >> $CONFIGFILE
+if [ $FSYNC = 1 ]; then
+  echo "FSYNC=1" >> $CONFIGFILE;
+else
+  echo "FSYNC=0" >> $CONFIGFILE;
+fi
+
+#GESTURES
+echo -e "\n\n##### DT2W/S2W/S2S & related options #####\n" >> $CONFIGFILE
+if [ ! -e /tmp/aroma/gest.prop ]; then
+  touch /tmp/aroma/gest.prop;
+fi
+
+#S2W
+SR=`grep "item.1.1" /tmp/aroma/gest.prop | cut -d '=' -f2`
+SL=`grep "item.1.2" /tmp/aroma/gest.prop | cut -d '=' -f2`
+SU=`grep "item.1.3" /tmp/aroma/gest.prop | cut -d '=' -f2`
+SD=`grep "item.1.4" /tmp/aroma/gest.prop | cut -d '=' -f2`
+
+if [ $SL = 1 ]; then
+  SL=2
+fi
+if [ $SU == 1 ]; then
+  SU=4
+fi
+if [ $SD == 1 ]; then
+  SD=8
+fi  
+
+S2W=$(( SL + SR + SU + SD ))
+echo "S2W=$S2W" >> $CONFIGFILE
+
+#DT2W
+DT2W=`grep "item.1.5" /tmp/aroma/gest.prop | cut -d '=' -f2`
+echo "DT2W=$DT2W" >> $CONFIGFILE
+
+#Shortsweep
+SHORTSWEEP=`grep "item.2.1" /tmp/aroma/gest.prop | cut -d '=' -f2`
+echo "SHORTSWEEP=$SHORTSWEEP" >> $CONFIGFILE
+
+#S2W Power key toggle
+PWR_KEY=`grep "item.2.2" /tmp/aroma/gest.prop | cut -d '=' -f2`
+echo "PWR_KEY=$PWR_KEY" >> $CONFIGFILE
+
+#S2W Magnetic cover toggle
+LID_SUS=`grep "item.2.3" /tmp/aroma/gest.prop | cut -d '=' -f2`
+echo "LID_SUS=$LID_SUS" >> $CONFIGFILE
+
+#S2W/DT2W Timeout
+if [ ! -e /tmp/aroma/timeout.prop ]; then
+  touch /tmp/aroma/timeout.prop;
+fi
+TIMEOUT=`cat /tmp/aroma/timeout.prop | cut -d '=' -f2`
+echo "TIMEOUT=$TIMEOUT" >> $CONFIGFILE
+
+#S2S
+S2S=`grep "item.1.1" /tmp/aroma/s2s.prop | cut -d '=' -f2`
+echo "S2S=$S2S" >> $CONFIGFILE
+
+#S2S Options
+PORTRAIT=`grep "item.2.1" /tmp/aroma/s2s.prop | cut -d '=' -f2`
+LANDSCAPE=`grep "item.2.2" /tmp/aroma/s2s.prop | cut -d '=' -f2`
+if [ $PORTRAIT = 1 ]; then
+  echo "PORTRAIT=1" >> $CONFIGFILE
+elif [ $LANDSCAPE = 1 ]; then
+  echo "LANDSCAPE=1" >> $CONFIGFILE
+else
+  echo "PORTRAIT=0" >> $CONFIGFILE
+  echo "LANDSCAPE=0" >> $CONFIGFILE
 fi
 
 #THERMAL
 THERM=`grep selected.1 /tmp/aroma/nrg.prop | cut -d '=' -f2`
 echo -e "\n\n##### Thermal Settings #####\n# 0 for default thermal throttling" >> $CONFIGFILE
-echo -e "# 1 to run cool\n# 2 to run hot\n" >> $CONFIGFILE
+echo -e "# 1 more aggressive thermal throttling\n# 2 less aggressive thermal throttling\n" >> $CONFIGFILE
 if [ "$THERM" = 1 ]; then
   echo "THERM=1" >> $CONFIGFILE;
 elif [ "$THERM" = 3 ]; then
@@ -88,14 +188,12 @@ else
 fi
 
 #MAXFREQ
-if [ ! -e /tmp/aroma-data/freq1.prop ]; then
-	cp /tmp/aroma-data/freq0.prop /tmp/aroma-data/freq1.prop;
-	cp /tmp/aroma-data/freq0.prop /tmp/aroma-data/freq2.prop;
-	cp /tmp/aroma-data/freq0.prop /tmp/aroma-data/freq3.prop;
+if [ ! -e /tmp/aroma/freq1.prop ]; then
+	cp /tmp/aroma/freq0.prop /tmp/aroma/freq1.prop;
+	cp /tmp/aroma/freq0.prop /tmp/aroma/freq2.prop;
+	cp /tmp/aroma/freq0.prop /tmp/aroma/freq3.prop;
 fi
 
-if [ -f "/tmp/aroma/freq0.prop" ];
-then
 MAXF_CPU0=`cat /tmp/aroma/freq0.prop | cut -d '=' -f2`
 echo -e "\n\n##### Maximum CPU0 frequency (KHz) #####\n# 1512000, 1620000, 1728000, 1836000, 1890000, 1944000, 1998000\n# 2052000, 2106000, 2160000, 2214000, 2268000, 2322000\n" >> $CONFIGFILE
 if [ "$MAXF_CPU0" = 2 ]; then
@@ -125,14 +223,7 @@ elif [ "$MAXF_CPU0" = 13 ]; then
 else
   echo "MAXF_CPU0=1512000" >> $CONFIGFILE;
 fi
-else
-echo "selected.0=99" > /tmp/aroma/freq0.prop
-echo -e "\n\n##### Maximum CPU0 frequency (KHz) #####\n# 1512000, 1620000, 1728000, 1836000, 1890000, 1944000, 1998000\n# 2052000, 2106000, 2160000, 2214000, 2268000, 2322000\n" >> $CONFIGFILE
-echo "MAXF_CPU0=1512000" >> $CONFIGFILE;
-fi
 
-if [ -f "/tmp/aroma/freq1.prop" ];
-then
 MAXF_CPU1=`cat /tmp/aroma/freq1.prop | cut -d '=' -f2`
 echo -e "\n\n##### Maximum CPU1 frequency (KHz) #####\n# 1512000, 1620000, 1728000, 1836000, 1890000, 1944000, 1998000\n# 2052000, 2106000, 2160000, 2214000, 2268000, 2322000\n" >> $CONFIGFILE
 if [ "$MAXF_CPU1" = 2 ]; then
@@ -162,14 +253,7 @@ elif [ "$MAXF_CPU1" = 13 ]; then
 else
   echo "MAXF_CPU1=1512000" >> $CONFIGFILE;
 fi
-else
-echo "selected.0=99" > /tmp/aroma/freq1.prop
-echo -e "\n\n##### Maximum CPU1 frequency (KHz) #####\n# 1512000, 1620000, 1728000, 1836000, 1890000, 1944000, 1998000\n# 2052000, 2106000, 2160000, 2214000, 2268000, 2322000\n" >> $CONFIGFILE
-echo "MAXF_CPU1=1512000" >> $CONFIGFILE;
-fi
 
-if [ -f "/tmp/aroma/freq2.prop" ];
-then
 MAXF_CPU2=`cat /tmp/aroma/freq2.prop | cut -d '=' -f2`
 echo -e "\n\n##### Maximum CPU2 frequency (KHz) #####\n# 1512000, 1620000, 1728000, 1836000, 1890000, 1944000, 1998000\n# 2052000, 2106000, 2160000, 2214000, 2268000, 2322000\n" >> $CONFIGFILE
 if [ "$MAXF_CPU2" = 2 ]; then
@@ -199,14 +283,7 @@ elif [ "$MAXF_CPU2" = 13 ]; then
 else
   echo "MAXF_CPU2=1512000" >> $CONFIGFILE;
 fi
-else
-echo "selected.0=99" > /tmp/aroma/freq2.prop
-echo -e "\n\n##### Maximum CPU2 frequency (KHz) #####\n# 1512000, 1620000, 1728000, 1836000, 1890000, 1944000, 1998000\n# 2052000, 2106000, 2160000, 2214000, 2268000, 2322000\n" >> $CONFIGFILE
-echo "MAXF_CPU2=1512000" >> $CONFIGFILE;
-fi
 
-if [ -f "/tmp/aroma/freq3.prop" ];
-then
 MAXF_CPU3=`cat /tmp/aroma/freq3.prop | cut -d '=' -f2`
 echo -e "\n\n##### Maximum CPU3 frequency (KHz) #####\n# 1512000, 1620000, 1728000, 1836000, 1890000, 1944000, 1998000\n# 2052000, 2106000, 2160000, 2214000, 2268000, 2322000\n" >> $CONFIGFILE
 if [ "$MAXF_CPU3" = 2 ]; then
@@ -235,11 +312,6 @@ elif [ "$MAXF_CPU3" = 13 ]; then
   echo "MAXF_CPU3=2322000" >> $CONFIGFILE;
 else
   echo "MAXF_CPU3=1512000" >> $CONFIGFILE;
-fi
-else
-echo "selected.0=99" > /tmp/aroma/freq3.prop
-echo -e "\n\n##### Maximum CPU3 frequency (KHz) #####\n# 1512000, 1620000, 1728000, 1836000, 1890000, 1944000, 1998000\n# 2052000, 2106000, 2160000, 2214000, 2268000, 2322000\n" >> $CONFIGFILE
-echo "MAXF_CPU3=1512000" >> $CONFIGFILE;
 fi
 
 #MINFREQ
@@ -299,24 +371,31 @@ else
   echo "GPU_OC=2" >> $CONFIGFILE;
 fi
 
+#GPU Governor
+GPU_GOV=`grep selected.2 /tmp/aroma/gpu.prop | cut -d '=' -f2`
+echo -e "\n\n##### GPU Governor #####\n# 1 ondemand (stock)\n# 2 simple\n" >> $CONFIGFILE
+if [ $GPU_GOV = 2 ]; then
+  echo "GPU_GOV=2" >> $CONFIGFILE;
+else
+  echo "GPU_GOV=1" >> $CONFIGFILE;
+fi
+
 #I/O scheduler
 IOSCHED=`grep selected.1 /tmp/aroma/disk.prop | cut -d '=' -f2`
-echo -e "\n\n##### I/O scheduler #####\n# 1 cfq (stock)\n# 2 row" >> $CONFIGFILE
-echo -e "# 3 deadline\n# 4 fiops\n# 5 sio# 6 noop# 7 bfq\n" >> $CONFIGFILE
-if [ "$IOSCHED" = 2 ]; then
+echo -e "\n\n##### I/O scheduler #####\n# 1 cfq (stock)\n# 2 fiops" >> $CONFIGFILE
+echo -e "# 3 sio\n# 4 deadline\n# 5 noop\n# 6 bfq\n" >> $CONFIGFILE
+if [ "$IOSCHED" = 1 ]; then
+  echo "IOSCHED=1" >> $CONFIGFILE;
+elif [ "$IOSCHED" = 2 ]; then
   echo "IOSCHED=2" >> $CONFIGFILE;
 elif [ "$IOSCHED" = 3 ]; then
   echo "IOSCHED=3" >> $CONFIGFILE;
-elif [ "$IOSCHED" = 4 ]; then
-  echo "IOSCHED=4" >> $CONFIGFILE;
 elif [ "$IOSCHED" = 5 ]; then
   echo "IOSCHED=5" >> $CONFIGFILE;
 elif [ "$IOSCHED" = 6 ]; then
   echo "IOSCHED=6" >> $CONFIGFILE;
-elif [ "$IOSCHED" = 7 ]; then
-  echo "IOSCHED=7" >> $CONFIGFILE;
 else
-  echo "IOSCHED=1" >> $CONFIGFILE;
+  echo "IOSCHED=4" >> $CONFIGFILE;
 fi
 
 #read-ahead
@@ -340,10 +419,10 @@ fi
 #CPU governor
 CPU_GOV=`grep selected.4 /tmp/aroma/cpu.prop | cut -d '=' -f2`
 echo -e "\n\n##### CPU governor #####\n# 1 ondemand (stock)" >> $CONFIGFILE
-echo -e "# 2 interactive\n# 3 intellidemand\n# 4 smartmax" >> $CONFIGFILE
-echo -e "# 5 smartmax_eps\n# 6 intelliactive\n# 7 conservative\n" >> $CONFIGFILE
-if [ "$CPU_GOV" = 2 ]; then
-  echo "CPU_GOV=2" >> $CONFIGFILE;
+echo -e "# 2 interactive\n# 3 smartmax\n# 4 intellidemand" >> $CONFIGFILE
+echo -e "# 5 intelliactive\n# 6 elementalx\n# 7 conservative\n" >> $CONFIGFILE
+if [ "$CPU_GOV" = 1 ]; then
+  echo "CPU_GOV=1" >> $CONFIGFILE;
 elif [ "$CPU_GOV" = 3 ]; then
   echo "CPU_GOV=3" >> $CONFIGFILE;
 elif [ "$CPU_GOV" = 4 ]; then
@@ -355,43 +434,7 @@ elif [ "$CPU_GOV" = 6 ]; then
 elif [ "$CPU_GOV" = 7 ]; then
   echo "CPU_GOV=7" >> $CONFIGFILE;
 else
-  echo "CPU_GOV=1" >> $CONFIGFILE;
-fi
-
-#Max screen off frequency
-if [ -f "/tmp/aroma/maxscroff.prop" ];
-then
-SCROFF=`cat /tmp/aroma/maxscroff.prop | cut -d '=' -f2`
-echo -e "\n\n##### Max screen off frequency ######\n# 0 disabled\n# 1 594MHz\n# 2 702MHz" >> $CONFIGFILE
-echo -e "# 3 810MHz\n# 4 1026MHz\n# 5 1242MHz\n" >> $CONFIGFILE
-if [ "$SCROFF" = 1 ]; then
-  echo "SCROFF=1" >> $CONFIGFILE;
-elif [ "$SCROFF" = 2 ]; then
-  echo "SCROFF=2" >> $CONFIGFILE;
-elif [ "$SCROFF" = 3 ]; then
-  echo "SCROFF=3" >> $CONFIGFILE;
-elif [ "$SCROFF" = 4 ]; then
-  echo "SCROFF=4" >> $CONFIGFILE;
-elif [ "$SCROFF" = 5 ]; then
-  echo "SCROFF=5" >> $CONFIGFILE;
-else
-  echo "SCROFF=0" >> $CONFIGFILE;
-fi
-else
-echo "selected.0=99" > /tmp/aroma/maxscroff.prop
-echo -e "\n\n##### Max screen off frequency ######\n# 0 disabled\n# 1 594MHz\n# 2 702MHz" >> $CONFIGFILE
-echo -e "# 3 810MHz\n# 4 1026MHz\n# 5 1242MHz\n" >> $CONFIGFILE
-echo "SCROFF=0" >> $CONFIGFILE;
-fi
-
-#Permissive Selinux
-PERMISSIVE=`grep "item.0.7" /tmp/aroma/misc.prop | cut -d '=' -f2`
-echo -e "\n\n##### Enforce Selinux #####\n# 0 for default" >> $CONFIGFILE
-echo -e "# 1 to enable permissive Selinux\n" >> $CONFIGFILE
-if [ "$PERMISSIVE" = 1 ]; then
-  echo "PERMISSIVE=1" >> $CONFIGFILE;
-else
-  echo "PERMISSIVE=0" >> $CONFIGFILE;
+  echo "CPU_GOV=2" >> $CONFIGFILE;
 fi
 
 #UV
@@ -437,13 +480,9 @@ fi
 #HOTPLUGDRV
 HOTPLUGDRV=`grep selected.3 /tmp/aroma/cpu.prop | cut -d '=' -f2`
 echo -e "\n\n##### Hotplug driver Settings #####\n# 0 to enable qualcomm mpdecision (stock)" >> $CONFIGFILE
-echo -e "# 1 to enable MSM Hotplug (recommended)\n# 2 to enable intelli-plug\n# 3 to enable Lazyplug\n" >> $CONFIGFILE
+echo -e "# 1 to enable MSM Hotplug (recommended)\n" >> $CONFIGFILE
 if [ "$HOTPLUGDRV" = 1 ]; then
   echo "HOTPLUGDRV=0" >> $CONFIGFILE;
-elif [ "$HOTPLUGDRV" = 3 ]; then
-  echo "HOTPLUGDRV=2" >> $CONFIGFILE;
-elif [ "$HOTPLUGDRV" = 4 ]; then
-  echo "HOTPLUGDRV=3" >> $CONFIGFILE;
 else
   echo "HOTPLUGDRV=1" >> $CONFIGFILE;
 fi

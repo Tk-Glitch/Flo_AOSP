@@ -21,7 +21,7 @@ cat << CTAG
 			}},'
 		fi`
 		`if [ -f "/sys/block/zram0/comp_algorithm" ]; then
-		CA=\`$BB echo $(/data/synapse/actions/bracket-option /sys/block/zram0/comp_algorithm)\`;
+		CA=\`$BB echo $(/res/synapse/actions/bracket-option /sys/block/zram0/comp_algorithm)\`;
 			$BB echo '{ SOptionList:{
 				title:"Compression Algorithm",
 				description:"Applying a different option will reset Z-RAM. LZ4 algorithm tends to have a faster decompression. More info: <a href='https://code.google.com/p/lz4/'>HERE</a>.",
@@ -125,7 +125,7 @@ cat << CTAG
 					title:"Drop Caches (Clear VFS Cache After Boot)",
 					description:"This option will force rebuild of file system cache based on actual app usage rather than boot/startup processes. NOTE: This process can take from 1-2 minutes (Enable for better file system read/write performance).",
 					default:0,
-					action:"dropcaches /data/synapse/files/dropcaches_prof",
+					action:"dropcaches /res/synapse/files/dropcaches_prof",
 					values:{ 0:"Disabled", 1:"Enabled"
 					}
 				}},

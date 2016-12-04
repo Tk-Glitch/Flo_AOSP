@@ -27,7 +27,7 @@ Exterminate(){
 
 if [ -f $1 ]; then
 	if [[ ! -z $2 ]]; then
-		if [ "$1" == "/data/synapse/files/lmk_prof" ]; then
+		if [ "$1" == "/res/synapse/files/lmk_prof" ]; then
 			$BB echo $2 > $1;
 			if [ $2 == "Custom" ]; then
 				$BB echo "32" > /sys/module/lowmemorykiller/parameters/cost;	

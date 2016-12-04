@@ -1,0 +1,196 @@
+cat << CTAG
+{
+    name:MISC,
+		elements:[
+		{ STitleBar:{
+			title:"TCP Congestion Control"
+		}},
+			{ SOptionList:{
+				description:"Set the algorithm of internet congestion avoidance, to possibly improve speeds and load times. More info: <a href='https://en.wikipedia.org/wiki/TCP_congestion-avoidance_algorithm'>HERE</a>",
+				default:`$BB cat \`sh $DEVICE DirTCPCongestion\``,
+				action:"generic `sh $DEVICE DirTCPCongestion`",
+				values:[
+					`sh $DEVICE TCPCongestionList`
+				]
+			}},
+			`if [ -f "/sys/module/sync/parameters/fsync_enabled" ]; then
+			FSYN=\`bool /sys/module/sync/parameters/fsync_enabled\`
+				$BB echo '{ SPane:{
+				title:"Fsync"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Disabling Fsync gives faster IO but presents a small risk of data loss.",
+						default:'$FSYN',
+						action:"boolean /sys/module/sync/parameters/fsync_enabled"
+					}},'
+			fi`
+			`if [ -f "/sys/kernel/fast_charge/force_fast_charge" ] && [ ! -f "/sys/kernel/fast_charge/fast_charge_level" ]; then
+			FC=\`$BB cat /sys/kernel/fast_charge/force_fast_charge\`
+				$BB echo '{ SPane:{
+				title:"USB Fast Charge"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"If enabled, device will charge faster when connected through USB.",
+						default:'$FC',
+						action:"generic /sys/kernel/fast_charge/force_fast_charge"
+					}},'
+			fi`
+			`if [ -f "/sys/module/msm_otg/parameters/usbhost_charge_mode" ]; then
+			USB=\`bool /sys/module/msm_otg/parameters/usbhost_charge_mode\`
+				$BB echo '{ SPane:{
+				title:"USB Host Mode Charging"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enabling this allows for OTG operation while charging.",
+						default:'$USB',
+						action:"boolean /sys/module/msm_otg/parameters/usbhost_charge_mode"
+					}},'
+			fi`
+			`if [ -f "/sys/devices/i2c-0/0-006a/float_voltage" ]; then
+			BLX=\`$BB cat /sys/devices/i2c-0/0-006a/float_voltage\`
+				$BB echo '{ SPane:{
+					title:"Battery Life Extender (BLE)"
+				}},
+					{ SSeekBar:{
+						description:"Limit the capacity to which the battery will be charged.",
+						default:'$BLX',
+						action:"generic /sys/devices/i2c-0/0-006a/float_voltage",
+						values:{ 4000:"4.0V(~72%)", 4100:"4.1V(~82%)", 4200:"4.2V(~92%)", 4300:"4.3V(100%)"
+						}
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/doubletap2wake" ]; then
+			DT2W=\`$BB cat /sys/android_touch/doubletap2wake\`
+				$BB echo '{ SPane:{
+				title:"Doubletap to wake"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Double tap on screen to wake your device. Will drain more battery on standby.",
+						default:'$DT2W',
+						action:"generic /sys/android_touch/doubletap2wake"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/pwrkey_suspend" ]; then
+			PWRSUS=\`$BB cat /sys/android_touch/pwrkey_suspend\`
+				$BB echo '{ SPane:{
+				title:"Power key Suspend"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable to temporarily disable wake gestures when you turn your screen off with power button. Wake gestures are re-enabled next time the screen comes on.",
+						default:'$PWRSUS',
+						action:"generic /sys/android_touch/pwrkey_suspend"
+					}},'
+			fi`
+			`if [ -f "/sys/android_touch/lid_suspend" ]; then
+			LIDSUS=\`$BB cat /sys/android_touch/lid_suspend\`
+				$BB echo '{ SPane:{
+				title:"Lid Suspend"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Enable to turn off wake gestures when magnetic cover is closed.",
+						default:'$LIDSUS',
+						action:"generic /sys/android_touch/lid_suspend"
+					}},'
+			fi`
+			`if [ -d "/sys/kernel/sound_control_3" ]; then
+				$BB echo '{ SPane:{
+				title:"Sound Profiles",
+				description:"After you apply a profile, turn audio Off/On to update. Select custom profile if you set controls manually."
+				}},
+					{ SOptionList:{
+						default:Custom,
+						action:"soundfaux '$UKM'/files/sound_prof",
+						values:[ Custom, LG_Stock, Quality, Loudness, Quiet,
+						],
+						notify:[
+							{
+								on:APPLY,
+								do:[ REFRESH, APPLY ],
+								to:['
+									[ "\`sh $DEVICE HasHeadphonePowerAmp\`" == "1" ] && $BB echo '"soundfaux /sys/kernel/sound_control_3/gpl_sound_control_locked",'
+									$BB echo '"soundfaux /sys/kernel/sound_control_3/gpl_headphone_gain",
+										"soundfaux /sys/kernel/sound_control_3/gpl_speaker_gain",'
+									[ "\`sh $DEVICE HasHeadphonePowerAmp\`" == "1" ] && $BB echo '"soundfaux /sys/kernel/sound_control_3/gpl_headphone_pa_gain",'
+									$BB echo '"soundfaux /sys/kernel/sound_control_3/gpl_mic_gain",
+										"soundfaux /sys/kernel/sound_control_3/gpl_cam_mic_gain"
+								]
+							}
+						]
+					}},
+				{ SPane:{
+				title:"Gain Controls",
+				}},'
+					$BB echo '{ SSeekBar:{
+						title:"Headphone (Left & Right)",
+						min:-30,
+						max:20,
+						default:0,
+						action:"soundfaux /sys/kernel/sound_control_3/gpl_headphone_gain",'
+						if [ "\`sh $DEVICE HasHeadphonePowerAmp\`" == "1" ]; then
+							$BB echo 'notify:[
+								{
+									on:APPLY,
+									do:[ REFRESH, APPLY ],
+									to:"soundfaux /sys/kernel/sound_control_3/gpl_sound_control_locked"
+								}
+							]'
+						fi
+					$BB echo '}},
+						{ SSeekBar:{
+							title:"Speaker",
+							min:-30,
+							max:20,
+							default:0,
+							action:"soundfaux /sys/kernel/sound_control_3/gpl_speaker_gain",'
+							if [ "\`sh $DEVICE HasHeadphonePowerAmp\`" == "1" ]; then
+								$BB echo 'notify:[
+									{
+										on:APPLY,
+										do:[ REFRESH, APPLY ],
+										to:"soundfaux /sys/kernel/sound_control_3/gpl_sound_control_locked"
+									}
+								]'
+							fi
+					$BB echo '}},'
+						$BB echo '{ SSeekBar:{
+							title:"Handset Microphone",
+							min:-30,
+							max:20,
+							default:0,
+							action:"soundfaux /sys/kernel/sound_control_3/gpl_mic_gain",'
+							if [ "\`sh $DEVICE HasHeadphonePowerAmp\`" == "1" ]; then
+								$BB echo 'notify:[
+									{
+										on:APPLY,
+										do:[ REFRESH, APPLY ],
+										to:"soundfaux /sys/kernel/sound_control_3/gpl_sound_control_locked"
+									}
+								]'
+							fi
+					$BB echo '}},
+						{ SSeekBar:{
+							title:"Camcorder Microphone",
+							min:-30,
+							max:20,
+							default:0,
+							action:"soundfaux /sys/kernel/sound_control_3/gpl_cam_mic_gain",'
+							if [ "\`sh $DEVICE HasHeadphonePowerAmp\`" == "1" ]; then
+								$BB echo 'notify:[
+									{
+										on:APPLY,
+										do:[ REFRESH, APPLY ],
+										to:"soundfaux /sys/kernel/sound_control_3/gpl_sound_control_locked"
+									}
+								]'
+							fi
+					$BB echo '}},'
+			fi`
+		]
+}
+CTAG

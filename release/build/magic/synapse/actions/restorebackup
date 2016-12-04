@@ -1,4 +1,4 @@
-SYN=/data/synapse;
+SYN=/res/synapse;
 BB=/system/xbin/busybox;
 
 if [ -d /data/data/com.af.synapse ]; then

@@ -4,7 +4,7 @@
 #					  	#
 # Options :				  	#
 #						#
-# cm : build cm variant			  	#
+# cm : build cm variant	if any		  	#
 # clean : clean the build directory       	#
 # cleank : clean the built kernel packages	#
 # cleanc : clean the compiler cache		#
@@ -29,10 +29,9 @@ setup ()
 {
 
 if [ ! -f arch/arm/configs/Glitch_$target_name"_defconfig" ] ; then
-echo "Glitch defconfig missing. Creating copies of original target defconfig for regular and CM. Edit these instead of default one!"
-echo "-----------------------------------------------------------------------------------------------------------------------------"
+echo "Glitch defconfig missing. Creating one using original target defconfig. Use this one instead of default!"
+echo "--------------------------------------------------------------------------------------------------------"
 cp arch/arm/configs/$target_name"_defconfig" arch/arm/configs/Glitch_$target_name"_defconfig"
-cp arch/arm/configs/$target_name"_defconfig" arch/arm/configs/Glitch_CM_$target_name"_defconfig"
 echo "done"
 fi
 
@@ -157,7 +156,6 @@ mkdir -p $KERNEL_DIR/release/build/aroma
 cp -r $KERNEL_DIR/release/build/magic $KERNEL_DIR/release/build/aroma/magic
 cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/aroma/magic/glitch.zImage
 cp -r $KERNEL_DIR/release/build/META-INF-aroma $KERNEL_DIR/release/build/aroma/META-INF
-cp -r $KERNEL_DIR/release/build/synapse $KERNEL_DIR/release/build/aroma/synapse
 cp -r $KERNEL_DIR/release/build/system $KERNEL_DIR/release/build/aroma/system
 
 #Restore
@@ -165,7 +163,6 @@ mkdir -p $KERNEL_DIR/release/build/restore
 cp -r $KERNEL_DIR/release/build/magic $KERNEL_DIR/release/build/restore/magic
 cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/restore/magic/glitch.zImage
 cp -r $KERNEL_DIR/release/build/META-INF-restore $KERNEL_DIR/release/build/restore/META-INF
-cp -r $KERNEL_DIR/release/build/synapse $KERNEL_DIR/release/build/restore/synapse
 cp -r $KERNEL_DIR/release/build/system $KERNEL_DIR/release/build/restore/system
 
 echo "Setting date & version in Aroma conf ("$(date +%B)" "$(date +%e)" "$(date +%Y)"),"
@@ -191,7 +188,7 @@ mkdir -p $KERNEL_DIR/release/$target_device-out
 cd $KERNEL_DIR/release/build/aroma
 REL=Glitch-N.$target_name.r$counter$target_variant-Full.zip
 
-	zip -q -r ${REL} magic META-INF synapse system
+	zip -q -r ${REL} magic META-INF system
 	#sha256sum ${REL} > ${REL}.sha256sum
 	mv ${REL}* $KERNEL_DIR/release/$target_device-out/
 
@@ -199,7 +196,7 @@ REL=Glitch-N.$target_name.r$counter$target_variant-Full.zip
 cd $KERNEL_DIR/release/build/restore
 REL2=Glitch-N.$target_name.r$counter$target_variant-Pure.zip
 
-	zip -q -r ${REL2} magic META-INF synapse system
+	zip -q -r ${REL2} magic META-INF system
 	#sha256sum ${REL2} > ${REL2}.sha256sum
 	mv ${REL2}* $KERNEL_DIR/release/$target_device-out/
 
@@ -254,7 +251,11 @@ else
 time {
 
 if [ "$1" = cm ] ; then
+if [ -f arch/arm/configs/Glitch_CM_$target_name"_defconfig" ] ; then
 export type="cm"
+else
+echo "No CM-specific defconfig found. Try without cm. Who needs cm anyway if it's AOSP compatible?"
+fi
 else
 export type="regular"
 fi

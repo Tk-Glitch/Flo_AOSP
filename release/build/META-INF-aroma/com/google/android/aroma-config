@@ -78,6 +78,10 @@ then
 selectbox(
   "CPU Settings","","","cpu.prop",
 
+  "Set each CPU core frequency separately","",2,
+  "No","(recommended)",1,
+  "Yes","Gives the option to set the max freq for each core individually",0,
+
   "CPU optimization level","",2,
   "stock","(1.13GHz-4.26GBps)",0,
   "improved","(1.19GHz-4.26GBps)",1,
@@ -89,16 +93,14 @@ selectbox(
   "Hotplug driver","",2,
   "Qualcomm mpdecision","(stock)",0,
   "Fluxi's MSM Hotplug","",1,
-  "Faux123 Intelli-plug","",0,
-  "Arter97's Lazyplug","",0,
 
   "CPU governor","",2,
-  "ondemand","(stock)",1,
-  "interactive","",0,
-  "intellidemand","",0,
+  "ondemand","(stock)",0,
+  "interactive","",1,
   "smartmax","",0,
-  "smartmax_eps","",0,
+  "intellidemand","",0,
   "intelliactive","",0,
+  "elementalx","",0,
   "conservative","",0,
 
   "Minimum CPU Frequency","",2,
@@ -110,6 +112,8 @@ selectbox(
   "810MHz","",0
 );
 
+if file_getprop("/tmp/aroma/cpu.prop","selected.1") == "1"
+then
 selectbox(
   "Maximum CPU Frequency","Select maximum CPU frequency\n","@info","freq0.prop",
   "1512MHz","(stock)",0,
@@ -126,6 +130,78 @@ selectbox(
   "2268MHz","",0,
   "2322MHz","(glitchy)",0
 );
+endif;
+
+if file_getprop("/tmp/aroma/cpu.prop","selected.1") == "2"
+then
+selectbox(
+  "Maximum CPU Frequency","Select maximum frequency for first CPU core\n","@menu","freq0.prop",
+  "1512MHz","(stock)",0,
+  "1620MHz","",0,
+  "1728MHz","(balanced)",1,
+  "1836MHz","",0,
+  "1890MHz","(performance)",0,
+  "1944MHz","",0,
+  "1998MHz","(high)",0,
+  "2052MHz","",0,
+  "2106MHz","(very high)",0,
+  "2160MHz","",0,
+  "2214MHz","(extreme)",0,
+  "2268MHz","",0,
+  "2322MHz","(glitchy)",0
+);
+
+selectbox(
+  "Maximum CPU Frequency","Select maximum frequency for second CPU core\n","@menu","freq1.prop",
+  "1512MHz","(stock)",0,
+  "1620MHz","",0,
+  "1728MHz","(balanced)",1,
+  "1836MHz","",0,
+  "1890MHz","(performance)",0,
+  "1944MHz","",0,
+  "1998MHz","(high)",0,
+  "2052MHz","",0,
+  "2106MHz","(very high)",0,
+  "2160MHz","",0,
+  "2214MHz","(extreme)",0,
+  "2268MHz","",0,
+  "2322MHz","(glitchy)",0
+);
+
+selectbox(
+  "Maximum CPU Frequency","Select maximum frequency for third CPU core\n","@menu","freq2.prop",
+  "1512MHz","(stock)",0,
+  "1620MHz","",0,
+  "1728MHz","(balanced)",1,
+  "1836MHz","",0,
+  "1890MHz","(performance)",0,
+  "1944MHz","",0,
+  "1998MHz","(high)",0,
+  "2052MHz","",0,
+  "2106MHz","(very high)",0,
+  "2160MHz","",0,
+  "2214MHz","(extreme)",0,
+  "2268MHz","",0,
+  "2322MHz","(glitchy)",0
+);
+
+selectbox(
+  "Maximum CPU Frequency","Select maximum frequency for fourth CPU core\n","@menu","freq3.prop",
+  "1512MHz","(stock)",0,
+  "1620MHz","",0,
+  "1728MHz","(balanced)",1,
+  "1836MHz","",0,
+  "1890MHz","(performance)",0,
+  "1944MHz","",0,
+  "1998MHz","(high)",0,
+  "2052MHz","",0,
+  "2106MHz","(very high)",0,
+  "2160MHz","",0,
+  "2214MHz","(extreme)",0,
+  "2268MHz","",0,
+  "2322MHz","(glitchy)",0
+);
+endif;
 
 selectbox(
   "Thermal & battery related Settings","","","nrg.prop",
@@ -170,7 +246,12 @@ selectbox(
   "504MHz","(balanced)",0,
   "545MHz","(fast)",0,
   "600MHz","(extreme)",0,
-  "627MHz","(glitchy)",0
+  "627MHz","(glitchy)",0,
+
+  "Select GPU governor","",2,
+  "Ondemand","(recommended)",1,
+  "Simple","",0
+
 );
 
 selectbox(
@@ -178,31 +259,107 @@ selectbox(
 
   "I/O scheduler","",2,
   "cfq","(stock)",0,
-  "row","",1,
-  "deadline","",0,
   "fiops","",0,
   "sio","",0,
+  "deadline","",1,
   "noop","",0,
   "bfq","",0,
 
   "Read-ahead buffer size","",2,
-  "128 KB","(stock)",0,
-  "256 KB","",1,
+  "128 KB","(stock)",1,
+  "256 KB","",0,
   "512 KB","",0,
   "1024 KB","",0,
   "2048 KB","",0
 );
 
+selectbox(
+  "Sweep2Wake and DoubleTap2Wake","","","wg.prop",
+  "S2W/DT2W","Sweep or double tap to wake tablet",1,
+  "Disable S2W/DT2W","",0
+);
+
+if file_getprop("/tmp/aroma/wg.prop","selected.0") == "1" 
+then
+
+checkbox(
+  "Gesture Options","<b>Customize Sweep2Wake and DoubleTap2Wake</b>","","gest.prop",
+  
+  "Available Gestures:","",2,
+  "Sweep right","",1,
+  "Sweep left","",1,
+  "Sweep up","",1,
+  "Sweep down","",1,
+  "Double tap","",1,
+
+  "Other Options","",2,
+  "Short sweep","Enable shorter sweep distance for S2W",1,
+  "Power button toggles S2W/DT2W","Turn screen off with power button to temporarily disable S2W/DT2W. S2W/DT2W are re-enabled next time the screen comes on",0,
+  "Magnetic cover toggles S2W/DT2W","S2W/DT2W is disabled when magnetic cover is closed",1,
+  "Wake Timeout","Disable S2W/DT2W after a specified period of time",0
+);
+
+if file_getprop("/tmp/aroma/gest.prop","item.1.1") == "0" 
+  && file_getprop("/tmp/aroma/gest.prop","item.1.2") == "0"
+  && file_getprop("/tmp/aroma/gest.prop","item.1.3") == "0"
+  && file_getprop("/tmp/aroma/gest.prop","item.1.4") == "0"
+  && file_getprop("/tmp/aroma/gest.prop","item.1.5") == "0"
+then
+alert(
+  "PLEASE NOTE:",
+  "You didn't enable any gestures",
+  "@alert",
+  "OK"
+);
+back("1");
+endif;
+
+if file_getprop("/tmp/aroma/gest.prop","item.2.4") == "1" 
+then
+selectbox(
+  "S2W/DT2W timeout","<b>Select timeout length</b>\nS2W and DT2W will be disabled after this length of time to save battery.","@info","timeout.prop",
+  "15 minutes","",0,
+  "30 minutes","",0,
+  "60 minutes","(default)",1,
+  "90 minutes","",0,
+  "120 minutes","",0
+);
+endif;
+endif;
+
+checkbox(
+  "Sweep2Sleep","<b>Sweep left across navbar area to put phone to sleep</b>\nThis feature does NOT drain battery","","s2s.prop",
+
+  "Available Gestures:","",2,
+  "Enable Sweep2Sleep","",1,
+
+  "Sweep2Sleep Options:","",2,
+  "Disable sweep2sleep in landscape mode","",1,
+  "Disable sweep2sleep in portrait mode","",0
+);
+
+if file_getprop("/tmp/aroma/s2s.prop","item.2.1") == "1" 
+  && file_getprop("/tmp/aroma/s2s.prop","item.2.2") == "1"
+then
+alert(
+  "PLEASE NOTE:",
+  "You might as well disable sweep2sleep.  Choose disable in landscape OR disable in portrait, not both.",
+  "@alert",
+  "OK"
+);
+back("1");
+endif;
+
 checkbox(
   "Other settings","<b>Select the mods you want to install</b>","@personalize","misc.prop",
-  "Enable USB fastcharge","",0,
+  "Enable USB fastcharge","",1,
   "Disable magnetic cover on/off","",0,
   "Enable USB OTG+Charge mode","Allows charging in USB host mode (disables self-powered OTG)",0,
-  "Enable Backlight dimmer","Lower screen brightness",0,
-  "Enable max suspend frequency","",0,
+  "Enable Backlight dimmer","Lower lowest screen brightness",1,
+  "Enable max suspend frequency","",1,
   "Enable max MC power savings","",0,
-  "Enable Permissive SELinux","Enables complete root support, but lowers security",0,
-  "Enable Doubletap to wake","Doubletap the screen to wake your device up",0
+  "Enable Permissive SELinux","",0,
+  "Disable fsync","Faster i/o, but slight risk of data loss",0
 );
 
 if file_getprop("/tmp/aroma/misc.prop","item.0.5") == "1"
@@ -222,16 +379,10 @@ endif;
 if file_getprop("/tmp/aroma/glitched.prop","selected.0") == "2"
 then
 alert(
-  "WARNING:",
-  "You MUST already have either Glitch kernel installed and running on this device or a backup of your settings on your SDcard root. Else, stock settings will be enforced.",
+  "NOTE:",
+  "You MUST already have either Glitch kernel installed and running on this device or a backup of your settings on your SDcard root. Else, a default profile will be used.",
   "@alert",
   "OK"
-);
-
-checkbox(
-  "Glitched already ?","You may want to restore your settings.\n","@personalize","galready.prop",
-  "Restore your settings from SDcard","If you have a glitch-settings.conf backup from a previous installation (on SDcard root).",0,
-  "Install Permissive SELinux patch","Enables complete root support, but lowers security",0
 );
 endif;
 

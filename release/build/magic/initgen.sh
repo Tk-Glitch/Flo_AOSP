@@ -14,6 +14,10 @@ if [ ! -d /system/etc/init.d ]; then
    mkdir /system/etc/init.d;
 fi
 
+if [ -d /data/synapse ]; then
+   rm -r /data/synapse;
+fi
+
 #Import/Generate settings
 if [ ! -f /tmp/glitch-settings.conf ];then
 
@@ -30,7 +34,10 @@ if [ ! -f /tmp/glitch-settings.conf ];then
 
 else
 
-   echo "Aroma settings found. Making a backup."
+   echo "Aroma settings found. Removing existing backup and making a new one."
+   if [ -f /sdcard/glitch-settings.conf ]; then
+   rm /sdcard/glitch-settings.conf
+   fi
    cp /tmp/glitch-settings.conf /sdcard/glitch-settings.conf
 
 fi
@@ -75,24 +82,6 @@ echo "" >> $INIT
 #####################################################################
 
 #S2W
-
-if [ $SL = 1 ]; then
-  SL=2
-else
-  SL=0
-fi
-if [ $SU == 1 ]; then
-  SU=4
-else
-  SU=0
-fi
-if [ $SD == 1 ]; then
-  SD=8
-else
-  SD=0
-fi  
-
-S2W=$(( SL + SR + SU + SD ))
 echo "write /sys/android_touch/sweep2wake" $S2W >> $INIT
 
 #DT2W
@@ -108,10 +97,10 @@ echo "write /sys/android_touch/pwrkey_suspend" $PWR_KEY >> $INIT
 echo "write /sys/android_touch/lid_suspend" $LID_SUS >> $INIT
 
 #S2W/DT2W Timeout
-echo "write /sys/android_touch/wake_timeout " $TIMEOUT >> $INIT
+echo "write /sys/android_touch/wake_timeout" $TIMEOUT >> $INIT
 
 #S2S
-echo "write /sys/android_touch/sweep2sleep " $S2S >> $INIT
+echo "write /sys/android_touch/sweep2sleep" $S2S >> $INIT
 
 #S2S Options
 if [ $PORTRAIT = 1 ]; then
@@ -165,20 +154,15 @@ fi
 
 #fsync
 if [ "$FSYNC" == "1" ]; then
-  echo "write /sys/module/sync/parameters/fsync_enabled 0" >> $INIT
+  echo "write /sys/module/sync/parameters/fsync_enabled N" >> $INIT
 else
-  echo "write /sys/module/sync/parameters/fsync_enabled 1" >> $INIT
+  echo "write /sys/module/sync/parameters/fsync_enabled Y" >> $INIT
 fi
 
 #Backlight dimmer
   echo "write /sys/module/msm_fb/parameters/backlight_dimmer $BLD" >> $INIT
 
 ####################################################################
-
-#Elex GBoost
-#if [ "$GBOOST" == "1" ]; then
-#  echo "write /sys/devices/system/cpu/cpufreq/elementalx/gboost 0" >> $INIT
-#fi
 
 #HOTPLUGDRV
 if [ "$HOTPLUGDRV" == "1" ]; then
@@ -312,13 +296,13 @@ fi
 if [ "$CPU_GOV" == "1" ]; then
   echo "write /sys/kernel/msm_limiter/scaling_governor \"ondemand\"" >> $INIT
 elif [ "$CPU_GOV" == "3" ]; then
-  echo "write /sys/kernel/msm_limiter/scaling_governor \"intellidemand\"" >> $INIT
-elif [ "$CPU_GOV" == "4" ]; then
   echo "write /sys/kernel/msm_limiter/scaling_governor \"smartmax\"" >> $INIT
+elif [ "$CPU_GOV" == "4" ]; then
+  echo "write /sys/kernel/msm_limiter/scaling_governor \"intellidemand\"" >> $INIT
 elif [ "$CPU_GOV" == "5" ]; then
-  echo "write /sys/kernel/msm_limiter/scaling_governor \"smartmax_eps\"" >> $INIT
-elif [ "$CPU_GOV" == "6" ]; then
   echo "write /sys/kernel/msm_limiter/scaling_governor \"intelliactive\"" >> $INIT
+elif [ "$CPU_GOV" == "6" ]; then
+  echo "write /sys/kernel/msm_limiter/scaling_governor \"elementalx\"" >> $INIT
 elif [ "$CPU_GOV" == "7" ]; then
   echo "write /sys/kernel/msm_limiter/scaling_governor \"conservative\"" >> $INIT
 else
@@ -340,16 +324,6 @@ else
   echo "write /sys/block/mmcblk0/queue/scheduler deadline" >> $INIT
 fi
 
-echo "" >> $INIT
-echo "exec u:r:init:s0 root root -- /sbin/init.synapse.sh" >> $INIT
-
-#echo "    start synapseinit" >> $INIT
-
-#echo "service synapseinit /sbin/busybox /sbin/init.synapse.sh" >> $INIT
-#echo "    class late_start" >> $INIT
-#echo "    user root" >> $INIT
-#echo "    group root" >> $INIT
-#echo "    disabled" >> $INIT
-#echo "    oneshot" >> $INIT
+exec u:r:init:s0 root root -- /system/xbin/uci
 
 #END

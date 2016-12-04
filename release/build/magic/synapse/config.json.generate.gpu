@@ -111,7 +111,7 @@ cat << CTAG
 					}},
 						{ SGeneric:{
 							title:"RGB colors tuning",
-							description:"Here you can set the values of RGB channel. Range 0-256 per canal",
+							description:"Here you can set the values per color channels (RGB, 0-256). Be aware that CyanogenMod 14.1 PCC will change these values depending on your LiveDisplay settings.",
 							default:'$KCAL',
 							action:"gamma /sys/devices/platform/kcal_ctrl.0/kcal",
 						}},'

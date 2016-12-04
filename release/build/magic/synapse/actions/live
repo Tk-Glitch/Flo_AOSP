@@ -1,5 +1,5 @@
 BB=/system/xbin/busybox;
-DEVICE=/data/synapse/files/Glitch_flo.sh;
+DEVICE=/res/synapse/files/Glitch_flo.sh;
 
 read() {
 	T=/sys/kernel/msm_limiter/$1;

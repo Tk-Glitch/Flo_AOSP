@@ -50,7 +50,7 @@ corewrite() {
 
 case $1 in
 	cpuvoltglobal)
-		VOLT_PROF=/data/synapse/files/volt_prof;
+		VOLT_PROF=/res/synapse/files/volt_prof;
 		P=/sys/devices/system/cpu/cpu0/cpufreq/UV_mV_table;
 		
 		if [ -f $P ]; then

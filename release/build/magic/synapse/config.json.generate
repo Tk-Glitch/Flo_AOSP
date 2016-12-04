@@ -1,0 +1,40 @@
+BB=/system/xbin/busybox;
+DEVICE=/res/synapse/files/Glitch_flo.sh;
+
+bool() {
+  [ `$BB cat $1` == "Y" ] && $BB echo "1";
+  [ `$BB cat $1` == "N" ] && $BB echo "0";
+}
+
+cat << CTAG
+{
+    sections: [
+		`if [ -n "$DEVICE" ]; then
+			. /res/synapse/config.json.generate.status
+			$BB echo ','
+			. /res/synapse/config.json.generate.presets
+			$BB echo ','
+			. /res/synapse/config.json.generate.cpu
+			$BB echo ','
+			. /res/synapse/config.json.generate.cpuvolt
+			$BB echo ','
+			. /res/synapse/config.json.generate.hotplug
+			$BB echo ','
+			. /res/synapse/config.json.generate.gpu
+			$BB echo ','
+			. /res/synapse/config.json.generate.thermal
+			$BB echo ','
+			. /res/synapse/config.json.generate.io
+			$BB echo ','
+			. /res/synapse/config.json.generate.memory
+			$BB echo ','
+			. /res/synapse/config.json.generate.misc
+			$BB echo ','
+			. /res/synapse/config.json.generate.tools
+			$BB echo ','
+			. /res/synapse/config.json.generate.profile
+			$BB echo ','
+		fi`
+    ]
+}
+CTAG

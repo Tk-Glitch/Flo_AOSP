@@ -1,5 +1,5 @@
 BB=/system/xbin/busybox;
-DEVICE=/data/synapse/files/Glitch_flo.sh;
+DEVICE=/res/synapse/files/Glitch_flo.sh;
 
 # BASE_HP_PA_GAIN=22; #Nexus 4
 BASE_HP_PA_GAIN=38; #Nexus 5
@@ -56,7 +56,7 @@ if [ -f $1 ]; then
 	if [[ ! -z $2 ]]; then
 		$BB echo 0 > /sys/kernel/sound_control_3/gpl_sound_control_locked;
 
-		if [ "$1" == "/data/synapse/files/sound_prof" ]; then
+		if [ "$1" == "/res/synapse/files/sound_prof" ]; then
 
 			$BB mount -t rootfs -o remount,rw rootfs;
 			$BB mount -o remount,rw /;

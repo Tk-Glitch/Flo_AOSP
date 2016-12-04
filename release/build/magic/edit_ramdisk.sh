@@ -126,18 +126,24 @@ sed -i '$!N; /^\(.*\)\n\1$/!P; D' /tmp/ramdisk/fstab.flo
 
 fi
 
-#copy glitch scripts
-cp /tmp/init.glitch.rc /tmp/ramdisk/init.glitch.rc
-chmod 755 /tmp/ramdisk/init.glitch.rc
-cp /tmp/init.synapse.sh /tmp/ramdisk/sbin/init.synapse.sh
-chmod 755 /tmp/ramdisk/sbin/init.synapse.sh
-
+#cleanup
 if [ -f "/tmp/ramdisk/sbin/glitch.sh" ]; then
 rm /tmp/ramdisk/sbin/glitch.sh
 fi
 if [ -f "/tmp/ramdisk/init.elementalx.rc" ]; then
 rm /tmp/ramdisk/init.elementalx.rc
 fi
+if [ -d "/tmp/ramdisk/res/synapse" ]; then
+rm -r /tmp/ramdisk/res/synapse
+fi
+
+#copy synapse & glitch scripts
+cp /tmp/init.glitch.rc /tmp/ramdisk/init.glitch.rc
+chmod 755 /tmp/ramdisk/init.glitch.rc
+cp -r /tmp/synapse /tmp/ramdisk/res/synapse
+chmod -R 755 /tmp/ramdisk/res/synapse
+cp /tmp/synapse/uci /system/xbin/uci
+chmod 755 /system/xbin/uci
 
 #repack
 find . | cpio -o -H newc | gzip > /tmp/initrd.img

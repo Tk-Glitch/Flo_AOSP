@@ -4,18 +4,18 @@ if [ -f "/system/xbin/sqlite3" ]; then SQL3=/system/xbin/sqlite3; else SQL3=/dat
 SYNAPSE_SD_DIR=/sdcard/Synapse;
 SYNAPSE_CONFIG_DIR=$SYNAPSE_SD_DIR/saved_configs;
 SYNAPSE_DATA=/data/data/com.af.synapse/databases;
-DISABLED_SETTINGS="'buildprop net.hostname', 'buildprop service.adb.tcp.port', 'devtools selinux', 'generic /data/synapse/files/bck_prof', 'sqlite PreferredNetworkMode'";
+DISABLED_SETTINGS="'buildprop net.hostname', 'buildprop service.adb.tcp.port', 'devtools selinux', 'generic /res/synapse/files/bck_prof', 'sqlite PreferredNetworkMode'";
 DISABLED_ACTIONS="AND key NOT LIKE 'cpuvolt%' AND key NOT LIKE 'gamma%' AND key NOT LIKE 'restorebackup%' AND key NOT LIKE 'soundfaux%' AND key NOT LIKE 'speakerfaux%' AND key NOT LIKE 'voltage%'";
 
 case "$1" in
 	ExportConfigSynapse)
-		BCK_PROF=`$BB cat /data/synapse/files/bck_prof`;
+		BCK_PROF=`$BB cat /res/synapse/files/bck_prof`;
 		BCK_PROF=`$BB echo ${BCK_PROF// /_}`;
 		
 		if [ "$BCK_PROF" == "None" ]; then
 			$BB echo "Enter a config name first and then apply.";
 		else
-			$BB echo "None" > /data/synapse/files/bck_prof;
+			$BB echo "None" > /res/synapse/files/bck_prof;
 			cd $SYNAPSE_DATA;
 			$SQL3 -separator '=' actionValueStore "SELECT key, value FROM action_value WHERE context = 'global' AND key NOT IN ($DISABLED_SETTINGS) $DISABLED_ACTIONS ORDER BY key ASC;" > "$SYNAPSE_CONFIG_DIR/$BCK_PROF.txt" 2> /dev/null;
 			$BB echo "$BCK_PROF.txt created. Press the Restart Synapse button below to see updated list.";
