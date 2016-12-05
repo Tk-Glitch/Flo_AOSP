@@ -79,7 +79,7 @@ fi
 
 #Permissive Selinux
 PERMISSIVE=`grep "item.0.7" /tmp/aroma/misc.prop | cut -d '=' -f2`
-echo -e "\n\n##### Enforce Selinux #####\n# 0 for default" >> $CONFIGFILE
+echo -e "\n\n##### Enforce Selinux #####\n# 0 to disable permissive Selinux" >> $CONFIGFILE
 echo -e "# 1 to enable permissive Selinux\n" >> $CONFIGFILE
 if [ "$PERMISSIVE" = 1 ]; then
   echo "PERMISSIVE=1" >> $CONFIGFILE;

@@ -53,6 +53,15 @@ l2_opt="l2_opt="$L2_OC;
 vdd_uv="vdd_uv="$UV_LEVEL;
 null="abc"
 
+#Permissive Selinux
+if [ "$PERMISSIVE" == "1" ]; then
+  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=0 androidboot.selinux=permissive" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
+else
+  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=1 androidboot.selinux=enforcing" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
+fi
+
+####################################################################
+
 echo "on early-init" >> $INIT
 echo "" >> $INIT
 echo "write /sys/class/graphics/fb0/rgb \"32768 32768 32768\"" >> $INIT
@@ -68,8 +77,6 @@ echo "write /sys/kernel/mm/ksm/pages_to_scan 256" >> $INIT
 echo "write /sys/kernel/mm/ksm/deferred_timer 1" >> $INIT
 echo "write /sys/kernel/mm/ksm/run 1" >> $INIT
 echo "" >> $INIT
-
-#####################################################################
 
 #S2W
 echo "write /sys/android_touch/sweep2wake" $S2W >> $INIT
@@ -100,8 +107,6 @@ elif [ $LANDSCAPE = 1 ]; then
 else
   echo "write /sys/android_touch/orientation 0" >> $INIT
 fi
-
-#####################################################################
 
 #MC Power Savings
 if [ "$MC_POWERSAVE" == "1" ]; then
@@ -180,15 +185,6 @@ echo "" >> $INIT
 echo "on property:sys.boot_completed=1" >> $INIT
 echo "" >> $INIT
 
-#Permissive Selinux
-if [ "$PERMISSIVE" == "1" ]; then
-  echo "write /sys/fs/selinux/enforce 0" >> $INIT
-  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=0" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
-else
-  echo "write /sys/fs/selinux/enforce 1" >> $INIT
-  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=1" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
-fi
-
 #read-ahead
 if [ "$READAHEAD" == "2" ]; then
   echo "write /sys/block/mmcblk0/queue/read_ahead_kb 256" >> $INIT
@@ -201,8 +197,6 @@ elif [ "$READAHEAD" == "5" ]; then
 else
   echo "write /sys/block/mmcblk0/queue/read_ahead_kb 128" >> $INIT
 fi
-
-echo "" >> $INIT
 
 #GPU Clock
 if [ "$GPU_OC" == "1" ]; then
@@ -237,38 +231,6 @@ elif [ "$GPU_UV" == "7" ]; then
 else
   echo "write /sys/devices/system/cpu/cpufreq/vdd_table/vdd_levels_GPU \"945000 1050000 1150000\"" >> $INIT
 fi
-
-echo "" >> $INIT
-
-#THERMAL
-if [ "$THERM" == "1" ]; then
-  echo "write /sys/module/msm_thermal/parameters/limit_temp_degC 65" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/core_limit_temp_degC 75" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/freq_control_mask 14" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/core_control_mask 8" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/thermal_limit_high 20" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/thermal_limit_low 5" >> $INIT
-elif [ "$THERM" == "2" ]; then
-  echo "write /sys/module/msm_thermal/parameters/limit_temp_degC 80" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/core_limit_temp_degC 90" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/freq_control_mask 12" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/core_control_mask 8" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/thermal_limit_high 20" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/thermal_limit_low 5" >> $INIT
-else
-  echo "write /sys/module/msm_thermal/parameters/limit_temp_degC 70" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/core_limit_temp_degC 80" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/freq_control_mask 12" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/core_control_mask 8" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/thermal_limit_high 20" >> $INIT
-  echo "write /sys/module/msm_thermal/parameters/thermal_limit_low 5" >> $INIT
-fi
-
-if [ -e /system/bin/thermald ] ; then
-  mv /system/bin/thermald /system/bin/thermald_bck
-fi
-
-echo "" >> $INIT
 
 #Max CPU_FREQ
 echo "write /sys/kernel/msm_limiter/resume_max_freq \"0:$MAXF_CPU0 1:$MAXF_CPU1 2:$MAXF_CPU2 3:$MAXF_CPU3\"" >> $INIT
@@ -308,6 +270,34 @@ else
   echo "write /sys/kernel/msm_limiter/scaling_governor \"interactive\"" >> $INIT
 fi
 
+#THERMAL
+if [ "$THERM" == "1" ]; then
+  echo "write /sys/module/msm_thermal/parameters/limit_temp_degC 65" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/core_limit_temp_degC 75" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/freq_control_mask 12" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/core_control_mask 8" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/thermal_limit_high 20" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/thermal_limit_low 5" >> $INIT
+elif [ "$THERM" == "2" ]; then
+  echo "write /sys/module/msm_thermal/parameters/limit_temp_degC 80" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/core_limit_temp_degC 90" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/freq_control_mask 12" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/core_control_mask 8" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/thermal_limit_high 20" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/thermal_limit_low 5" >> $INIT
+else
+  echo "write /sys/module/msm_thermal/parameters/limit_temp_degC 70" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/core_limit_temp_degC 80" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/freq_control_mask 12" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/core_control_mask 8" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/thermal_limit_high 20" >> $INIT
+  echo "write /sys/module/msm_thermal/parameters/thermal_limit_low 5" >> $INIT
+fi
+
+if [ -e /system/bin/thermald ] ; then
+  mv /system/bin/thermald /system/bin/thermald_bck
+fi
+
 #I/O scheduler // Triggers too early on CM14.1
 if [ "$IOSCHED" == "1" ]; then
   echo "write /sys/block/mmcblk0/queue/scheduler cfq" >> $INIT
@@ -322,7 +312,5 @@ elif [ "$IOSCHED" == "6" ]; then
 else
   echo "write /sys/block/mmcblk0/queue/scheduler deadline" >> $INIT
 fi
-
-exec u:r:init:s0 root root -- /system/xbin/uci
 
 #END

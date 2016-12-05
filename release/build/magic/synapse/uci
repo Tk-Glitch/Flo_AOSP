@@ -11,21 +11,10 @@ UCI_ACTION=/res/synapse/actions/;
 DEBUG=/res/synapse/debug;
 SYNAPSE_SD_DIR=/sdcard/Synapse;
 
-#Selinux check
-SECHECK=`cat /sys/fs/selinux/enforce`;
+if [ ! -f $UCI_CONFIG ]; then
 
 	$BB mount -t rootfs -o rw,remount rootfs;
 	$BB chmod -R 755 /res/synapse;
-
-	#Selinux switch
-	if [ $PERMISSIVE == "1" ] && [ "$SECHECK" == 1 ]; then
-		setenforce 0
-	fi
-	if [ $PERMISSIVE == "0" ] && [ "$SECHECK" == 0 ]; then
-		setenforce 1
-	fi
-
-if [ ! -f $UCI_CONFIG ]; then
 
 	[ ! -d "$SYNAPSE_SD_DIR" ] && $BB mkdir -p "$SYNAPSE_SD_DIR";
 	# Use this trigger to reset Synapse settings on boot.
