@@ -80,4 +80,4 @@ run_program("/tmp/busybox", "umount", "/system");
 
 ui_print("");
 set_progress(1.0);
-ui_print("Done! Enjoy your Glitch'd device !");
+ui_print("Done! Enjoy your Glitch'd device ! Be patient during next boot ;)");
