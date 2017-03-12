@@ -355,7 +355,7 @@ checkbox(
   "Enable USB fastcharge","",1,
   "Disable magnetic cover on/off","",0,
   "Enable USB OTG+Charge mode","Allows charging in USB host mode (disables self-powered OTG)",0,
-  "Enable Backlight dimmer","Lower lowest screen brightness",1,
+  "Enable Backlight dimmer","Lower lowest screen brightness (may cause black screen on auto-brightness with some display revisions)",0,
   "Enable max suspend frequency","",1,
   "Enable max MC power savings","",0,
   "Enable Permissive SELinux","",0,
