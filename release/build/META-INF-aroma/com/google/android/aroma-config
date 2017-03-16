@@ -91,8 +91,8 @@ selectbox(
   "glitchy","(1.49GHz-4.80GBps)",0,
 
   "Hotplug driver","",2,
-  "Qualcomm mpdecision","(stock)",0,
-  "Fluxi's MSM Hotplug","",1,
+  "Qualcomm mpdecision","(default)",1,
+  "Fluxi's MSM Hotplug","",0,
 
   "CPU governor","",2,
   "ondemand","(stock)",0,
