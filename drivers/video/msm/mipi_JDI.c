@@ -440,8 +440,6 @@ static void mipi_JDI_set_recovery_backlight(struct msm_fb_data_type *mfd)
 }
 static void mipi_JDI_lcd_shutdown(void)
 {
-	int ret;
-
 	pr_info("%s+\n", __func__);
 
 	gpio_set_value_cansleep(gpio_LCD_BL_EN, 0);
