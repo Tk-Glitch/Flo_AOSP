@@ -128,20 +128,13 @@ static int msm_cpufreq_target(struct cpufreq_policy *policy,
 	struct cpufreq_frequency_table *table;
 
 	struct cpufreq_work_struct *cpu_work = NULL;
-	cpumask_var_t mask;
-
-	if (!cpu_active(policy->cpu)) {
-		pr_info("cpufreq: cpu %d is not active.\n", policy->cpu);
-		return -ENODEV;
-	}
-
-	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
-		return -ENOMEM;
 
 	mutex_lock(&per_cpu(cpufreq_suspend, policy->cpu).suspend_mutex);
 
-	if (target_freq == policy->cur)
+	if (target_freq == policy->cur) {
+		ret = 0;
 		goto done;
+	}
 
 	if (per_cpu(cpufreq_suspend, policy->cpu).device_suspended) {
 		pr_debug("cpufreq: cpu%d scheduling frequency change "
@@ -167,22 +160,14 @@ static int msm_cpufreq_target(struct cpufreq_policy *policy,
 	cpu_work->frequency = table[index].frequency;
 	cpu_work->status = -ENODEV;
 
-	cpumask_clear(mask);
-	cpumask_set_cpu(policy->cpu, mask);
-	if (cpumask_equal(mask, &current->cpus_allowed)) {
-		ret = set_cpu_freq(cpu_work->policy, cpu_work->frequency);
-		goto done;
-	} else {
-		cancel_work_sync(&cpu_work->work);
-		INIT_COMPLETION(cpu_work->complete);
-		queue_work_on(policy->cpu, msm_cpufreq_wq, &cpu_work->work);
-		wait_for_completion(&cpu_work->complete);
-	}
+	cancel_work_sync(&cpu_work->work);
+	INIT_COMPLETION(cpu_work->complete);
+	queue_work_on(policy->cpu, msm_cpufreq_wq, &cpu_work->work);
+	wait_for_completion(&cpu_work->complete);
 
 	ret = cpu_work->status;
 
 done:
-	free_cpumask_var(mask);
 	mutex_unlock(&per_cpu(cpufreq_suspend, policy->cpu).suspend_mutex);
 	return ret;
 }
