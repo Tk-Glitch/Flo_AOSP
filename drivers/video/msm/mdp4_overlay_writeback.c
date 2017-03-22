@@ -206,7 +206,7 @@ int mdp4_overlay_writeback_off(struct platform_device *pdev)
 	/* sanity check, free pipes besides base layer */
 	mdp4_overlay_unset_mixer(pipe->mixer_num);
 	mdp4_mixer_stage_down(pipe, 1);
-	mdp4_overlay_pipe_free(pipe);
+	mdp4_overlay_pipe_free(pipe, 1);
 	vctrl->base_pipe = NULL;
 	mdp_clk_ctrl(0);
 	undx =  vctrl->update_ndx;
@@ -391,7 +391,7 @@ int mdp4_wfd_pipe_commit(struct msm_fb_data_type *mfd,
 		pipe = vp->plist;
 		for (i = 0; i < OVERLAY_PIPE_MAX; i++, pipe++) {
 			pipe->pipe_used = 0;
-			pr_info("%s: dequeue update failed, unsetting pipes\n",
+			pr_debug("%s: dequeue update failed, unsetting pipes\n",
 				__func__);
 		}
 		return cnt;
@@ -417,8 +417,6 @@ int mdp4_wfd_pipe_commit(struct msm_fb_data_type *mfd,
 			pipe->pipe_used = 0; /* clear */
 		}
 	}
-
-	mdp_clk_ctrl(1);
 
 	mdp4_mixer_stage_commit(mixer);
 
