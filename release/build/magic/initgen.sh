@@ -163,6 +163,7 @@ fi
 if [ "$HOTPLUGDRV" == "1" ]; then
   echo "write /sys/module/msm_mpdecision/parameters/enabled 0" >> $INIT
   echo "write /sys/module/msm_hotplug/msm_enabled 1" >> $INIT
+  echo "write /sys/module/msm_hotplug/io_is_busy 1" >> $INIT
 if [ -e /system/bin/mpdecision ] ; then
   mv /system/bin/mpdecision /system/bin/mpdecision_bck
 fi
