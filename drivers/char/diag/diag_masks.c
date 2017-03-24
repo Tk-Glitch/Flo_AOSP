@@ -205,14 +205,15 @@ void diag_toggle_event_mask(int toggle)
 static void diag_update_event_mask(uint8_t *buf, int toggle, int num_bytes)
 {
 	uint8_t *ptr = driver->event_masks;
+	uint8_t *ptr_buffer_start = &(*(driver->event_masks));
+	uint8_t *ptr_buffer_end = &(*(driver->event_masks)) + EVENT_MASK_SIZE;
 	uint8_t *temp = buf + 2;
 
 	mutex_lock(&driver->diagchar_mutex);
 	if (!toggle)
 		memset(ptr, 0 , EVENT_MASK_SIZE);
 	else
-		if (CHK_OVERFLOW(ptr, ptr,
-				 ptr+EVENT_MASK_SIZE, num_bytes))
+		if (CHK_OVERFLOW(ptr_buffer_start, ptr, ptr_buffer_end, num_bytes))
 			memcpy(ptr, temp , num_bytes);
 		else
 			printk(KERN_CRIT "Not enough buffer space for EVENT_MASK\n");

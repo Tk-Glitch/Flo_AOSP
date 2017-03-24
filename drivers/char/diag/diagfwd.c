@@ -563,10 +563,12 @@ int diag_device_write(void *buf, int data_type, struct diag_request *write_ptr)
 static void diag_update_pkt_buffer(unsigned char *buf)
 {
 	unsigned char *ptr = driver->pkt_buf;
+	unsigned char *ptr_buffer_start = &(*(driver->pkt_buf));
+	unsigned char *ptr_buffer_end = &(*(driver->pkt_buf)) + PKT_SIZE;
 	unsigned char *temp = buf;
 
 	mutex_lock(&driver->diagchar_mutex);
-	if (CHK_OVERFLOW(ptr, ptr, ptr + PKT_SIZE, driver->pkt_length))
+	if (CHK_OVERFLOW(ptr_buffer_start, ptr, ptr_buffer_end, driver->pkt_length))
 		memcpy(ptr, temp , driver->pkt_length);
 	else
 		printk(KERN_CRIT " Not enough buffer space for PKT_RESP\n");
@@ -1566,8 +1568,8 @@ void diagfwd_init(void)
 	kmemleak_not_leak(driver->hdlc_buf);
 	if (driver->user_space_data == NULL)
 		driver->user_space_data = kzalloc(USER_SPACE_DATA, GFP_KERNEL);
-		if (driver->user_space_data == NULL)
-			goto err;
+	if (driver->user_space_data == NULL)
+		goto err;
 	kmemleak_not_leak(driver->user_space_data);
 	if (driver->client_map == NULL &&
 	    (driver->client_map = kzalloc

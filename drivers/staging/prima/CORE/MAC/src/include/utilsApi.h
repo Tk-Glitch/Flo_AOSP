@@ -713,12 +713,13 @@ halRoundS32(tANI_S32 p)
     j = p%10;
     if (p > 0)
         k = i + (j > 4 ? 1 : 0);
-    else if (p < 0)
+    else
+    if (p < 0)
         k = i + (j < -5 ? -1 : 0);
     else
         k = p;
 
-        return(k);
+    return(k);
 }
 
 // New functions for endianess conversion

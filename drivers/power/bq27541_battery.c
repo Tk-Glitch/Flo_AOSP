@@ -845,7 +845,7 @@ static int bq27541_probe(struct i2c_client *client,
 			BAT_ERR("Failed to register power supply\n");
 			while (i--)
 				power_supply_unregister(&bq27541_supply[i]);
-				kfree(bq27541_device);
+			kfree(bq27541_device);
 			return ret;
 		}
 	}
