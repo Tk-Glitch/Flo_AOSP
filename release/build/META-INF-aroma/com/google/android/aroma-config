@@ -264,6 +264,7 @@ selectbox(
   "deadline","",1,
   "noop","",0,
   "bfq","",0,
+  "zen","",0,
 
   "Read-ahead buffer size","",2,
   "128 KB","(stock)",1,

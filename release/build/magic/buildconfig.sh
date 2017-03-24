@@ -383,7 +383,7 @@ fi
 #I/O scheduler
 IOSCHED=`grep selected.1 /tmp/aroma/disk.prop | cut -d '=' -f2`
 echo -e "\n\n##### I/O scheduler #####\n# 1 cfq (stock)\n# 2 fiops" >> $CONFIGFILE
-echo -e "# 3 sio\n# 4 deadline\n# 5 noop\n# 6 bfq\n" >> $CONFIGFILE
+echo -e "# 3 sio\n# 4 deadline\n# 5 noop\n# 6 bfq\n# 7 zen\n" >> $CONFIGFILE
 if [ "$IOSCHED" = 1 ]; then
   echo "IOSCHED=1" >> $CONFIGFILE;
 elif [ "$IOSCHED" = 2 ]; then
@@ -394,6 +394,8 @@ elif [ "$IOSCHED" = 5 ]; then
   echo "IOSCHED=5" >> $CONFIGFILE;
 elif [ "$IOSCHED" = 6 ]; then
   echo "IOSCHED=6" >> $CONFIGFILE;
+elif [ "$IOSCHED" = 7 ]; then
+  echo "IOSCHED=7" >> $CONFIGFILE;
 else
   echo "IOSCHED=4" >> $CONFIGFILE;
 fi

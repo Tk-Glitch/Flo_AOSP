@@ -21,6 +21,8 @@ elif [ "$IOSCHED" == "5" ]; then
   sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler noop/" /tmp/ramdisk/init.flo.power.rc
 elif [ "$IOSCHED" == "6" ]; then
   sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler bfq/" /tmp/ramdisk/init.flo.power.rc
+elif [ "$IOSCHED" == "7" ]; then
+  sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler zen/" /tmp/ramdisk/init.flo.power.rc
 else
   sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler deadline/" /tmp/ramdisk/init.flo.power.rc
 fi

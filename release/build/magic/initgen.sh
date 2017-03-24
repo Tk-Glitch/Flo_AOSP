@@ -310,6 +310,8 @@ elif [ "$IOSCHED" == "5" ]; then
   echo "write /sys/block/mmcblk0/queue/scheduler noop" >> $INIT
 elif [ "$IOSCHED" == "6" ]; then
   echo "write /sys/block/mmcblk0/queue/scheduler bfq" >> $INIT
+elif [ "$IOSCHED" == "7" ]; then
+  echo "write /sys/block/mmcblk0/queue/scheduler zen" >> $INIT
 else
   echo "write /sys/block/mmcblk0/queue/scheduler deadline" >> $INIT
 fi
