@@ -479,8 +479,8 @@ fi
 
 #HOTPLUGDRV
 HOTPLUGDRV=`grep selected.3 /tmp/aroma/cpu.prop | cut -d '=' -f2`
-echo -e "\n\n##### Hotplug driver Settings #####\n# 0 to enable qualcomm mpdecision (default)" >> $CONFIGFILE
-echo -e "# 1 to enable MSM Hotplug\n" >> $CONFIGFILE
+echo -e "\n\n##### Hotplug driver Settings #####\n# 0 to enable qualcomm mpdecision (stock)" >> $CONFIGFILE
+echo -e "# 1 to enable MSM Hotplug (recommended)\n" >> $CONFIGFILE
 if [ "$HOTPLUGDRV" = 1 ]; then
   echo "HOTPLUGDRV=0" >> $CONFIGFILE;
 else
