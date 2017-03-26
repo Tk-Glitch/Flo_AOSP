@@ -14,8 +14,16 @@ if [ ! -d /system/etc/init.d ]; then
    mkdir /system/etc/init.d;
 fi
 
-if [ -d /data/synapse ]; then
-   rm -r /data/synapse;
+if [ -e /system/bin/mpdecision_bck ] ; then
+  mv /system/bin/mpdecision_bck /system/bin/mpdecision
+fi
+
+if [ -e /system/bin/thermald ] ; then
+  mv /system/bin/thermald /system/bin/thermald_bck
+fi
+
+if [ ! -d /data/synapse ]; then
+   mkdir /data/synapse;
 fi
 
 #Import/Generate settings
@@ -164,15 +172,9 @@ if [ "$HOTPLUGDRV" == "1" ]; then
   echo "write /sys/module/msm_mpdecision/parameters/enabled 0" >> $INIT
   echo "write /sys/module/msm_hotplug/msm_enabled 1" >> $INIT
   echo "write /sys/module/msm_hotplug/io_is_busy 1" >> $INIT
-if [ -e /system/bin/mpdecision ] ; then
-  mv /system/bin/mpdecision /system/bin/mpdecision_bck
-fi
 else
   echo "write /sys/module/msm_mpdecision/parameters/enabled 1" >> $INIT
   echo "write /sys/module/msm_hotplug/msm_enabled 0" >> $INIT
-if [ -e /system/bin/mpdecision_bck ] ; then
-  mv /system/bin/mpdecision_bck /system/bin/mpdecision
-fi
 fi
 
 #GPU Governor
@@ -295,11 +297,7 @@ else
   echo "write /sys/module/msm_thermal/parameters/thermal_limit_low 5" >> $INIT
 fi
 
-if [ -e /system/bin/thermald ] ; then
-  mv /system/bin/thermald /system/bin/thermald_bck
-fi
-
-#I/O scheduler // Triggers too early on CM14.1
+#I/O scheduler // Triggers too early on LOS14.1
 if [ "$IOSCHED" == "1" ]; then
   echo "write /sys/block/mmcblk0/queue/scheduler cfq" >> $INIT
 elif [ "$IOSCHED" == "2" ]; then

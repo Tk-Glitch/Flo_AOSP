@@ -9,7 +9,7 @@ rm /tmp/initrd.img
 
 . /tmp/glitch-settings.conf
 
-#I/O scheduler // Fixup for CM14.1
+#I/O scheduler // Fixup for LOS14.1
 if [ $(grep -c "setprop sys.io.scheduler" /tmp/ramdisk/init.flo.power.rc) == 1 ]; then
 if [ "$IOSCHED" == "1" ]; then
   sed -i "s/.*setprop sys.io.scheduler.*/    setprop sys.io.scheduler cfq/" /tmp/ramdisk/init.flo.power.rc
@@ -28,6 +28,13 @@ else
 fi
 fi
 
+#mpdecision service
+if [ "$HOTPLUGDRV" == "1" ]; then
+  sed -i "s/.*mpdecision.*/    stop mpdecision/" /tmp/ramdisk/init.flo.power.rc
+else
+  sed -i "s/.*mpdecision.*/    start mpdecision/" /tmp/ramdisk/init.flo.power.rc
+fi
+
 #Start glitch script
 if [ -f "/tmp/ramdisk/init.rc" ]; then
 if [ $(grep -c "import /init.glitch.rc" /tmp/ramdisk/init.rc) == 0 ]; then
@@ -40,16 +47,28 @@ fi
 #   sed -i "s/start flash_recovery/#start flash_recovery/" /tmp/ramdisk/init.rc
 #fi
 
-#add init.d support if needed
+#add init.d support if missing
 if [ $(grep -c "init.d" /tmp/ramdisk/init.rc) == 0 ]; then
 if [ !$(grep -qr "init.d" /tmp/ramdisk/*) ]; then
    echo "" >> /tmp/ramdisk/init.rc
-   echo "service userinit /system/sbin/busybox run-parts /system/etc/init.d" >> /tmp/ramdisk/init.rc
-   echo "    oneshot" >> /tmp/ramdisk/init.rc
+   echo "service userinit /system/xbin/busybox run-parts /system/etc/init.d" >> /tmp/ramdisk/init.rc
    echo "    class late_start" >> /tmp/ramdisk/init.rc
    echo "    user root" >> /tmp/ramdisk/init.rc
    echo "    group root" >> /tmp/ramdisk/init.rc
+   echo "    seclabel u:r:init:s0" >> /tmp/ramdisk/init.rc
+   echo "    oneshot" >> /tmp/ramdisk/init.rc
 fi
+fi
+
+#add synapse support if missing
+if [ $(grep -c "service synapse" /tmp/ramdisk/init.rc) == 0 ]; then
+   echo "" >> /tmp/ramdisk/init.rc
+   echo "service synapse /system/xbin/uci" >> /tmp/ramdisk/init.rc
+   echo "    class late_start" >> /tmp/ramdisk/init.rc
+   echo "    user root" >> /tmp/ramdisk/init.rc
+   echo "    group root" >> /tmp/ramdisk/init.rc
+   echo "    seclabel u:r:init:s0" >> /tmp/ramdisk/init.rc
+   echo "    oneshot" >> /tmp/ramdisk/init.rc
 fi
 
 #remove governor overrides, use kernel default

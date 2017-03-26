@@ -5,10 +5,8 @@
 
 BB=/system/xbin/busybox;
 
-DEVICE=`sh /res/synapse/files/Glitch_flo.sh`;
-UCI_CONFIG=/res/synapse/config.json;
+UCI_CONFIG=/data/synapse/config.json;
 UCI_ACTION=/res/synapse/actions/;
-DEBUG=/res/synapse/debug;
 SYNAPSE_SD_DIR=/sdcard/Synapse;
 
 if [ ! -f $UCI_CONFIG ]; then
@@ -20,7 +18,7 @@ if [ ! -f $UCI_CONFIG ]; then
 	# Use this trigger to reset Synapse settings on boot.
 	# Just increment it for cases like default parameters are changed
 	# for some drivers and you wish user to use these parameters on boot.
-	KERNEL_CURR=Glitch-r540+;
+	KERNEL_CURR=Glitch-r560+;
 	
 	if [ ! -f "$SYNAPSE_SD_DIR/last_kernel" ]; then
 		$BB rm -R /data/data/com.af.synapse/databases;
@@ -34,36 +32,22 @@ if [ ! -f $UCI_CONFIG ]; then
 		fi
 	fi
 	
-#	if [ ! -f $DEBUG/pvs_bin ]; then
-#		PVS=`$BB dmesg | $BB grep "\`sh $DEVICE DebugPVS\`"`;
-#		$BB echo ${PVS##*:} > $DEBUG/pvs_bin;
-#	fi
-	
-#	if [ ! -f $DEBUG/speed_bin ]; then
-#		SPEED=`$BB dmesg | $BB grep "\`sh $DEVICE DebugSPEED\`"`;
-#		$BB echo ${SPEED##*:} > $DEBUG/speed_bin;
-#	fi
-	
-#	if [ ! -f $DEBUG/last_kmsg ]; then
-#		LAST_KMSG=`$BB tail -n 1 /proc/last_kmsg`;
-#		$BB echo $LAST_KMSG > $DEBUG/last_kmsg;
-#	fi
-	
 	source /res/synapse/config.json.generate > $UCI_CONFIG;
-	$BB chmod -R 755 /res/synapse;
 	
-	$BB mount -t rootfs -o rw,remount rootfs;
+	$BB mount -t rootfs -o ro,remount rootfs;
 fi;
 
 case "${1}" in
   config)
-		$BB cat $UCI_CONFIG;;
+		$BB cat $UCI_CONFIG ;;
   configpath)
-		$BB echo $UCI_CONFIG;;
+		$BB echo $UCI_CONFIG ;;
   actionpath)
-		$BB echo $UCI_ACTION;;
+		$BB echo $UCI_ACTION ;;
   reset)
 		$BB mount -t rootfs -o rw,remount rootfs;
 		$BB rm -f $UCI_CONFIG;
-		$BB mount -t rootfs -o ro,remount rootfs;;
+		$BB mount -t rootfs -o ro,remount rootfs;
+  ;;
 esac;
+
