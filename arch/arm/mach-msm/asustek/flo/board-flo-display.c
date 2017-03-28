@@ -543,31 +543,31 @@ static int mipi_dsi_panel_power(int on)
 				pr_err("enable lvs5 failed, rc=%d\n", rc);
 				return -ENODEV;
 			}
-			usleep(8000);
+			msleep_interruptible(8);
 			gpio_set_value_cansleep(gpio_EN_VDD_BL, 1);
-			usleep(20000);
+			msleep(20);
 			gpio_set_value_cansleep(gpio_LCM_XRES, 1);
-			usleep(20000);
+			msleep(20);
 		} else {
 			gpio_set_value_cansleep(gpio_EN_VDD_BL, 1);
 			msleep(210);
 			gpio_set_value_cansleep(gpio_LCD_BL_EN, 1);
-			usleep(20000);
+			msleep(20);
 		}
 	} else {
 		if (type == 0) {
-			usleep(20000);
+			msleep(20);
 			gpio_set_value_cansleep(gpio_EN_VDD_BL, 0);
-			usleep(20000);
+			msleep(20);
 			gpio_set_value_cansleep(gpio_LCM_XRES, 0);
-			usleep(8000);
+			msleep_interruptible(8);
 			rc = regulator_disable(reg_lvs5);
 			if (rc) {
 				pr_err("disable reg_lvs5 failed, rc=%d\n", rc);
 				return -ENODEV;
 			}
 		} else {
-			usleep(20000);
+			msleep(20);
 			gpio_set_value_cansleep(gpio_LCD_BL_EN, 0);
 			msleep(210);
 			gpio_set_value_cansleep(gpio_EN_VDD_BL, 0);
