@@ -1642,7 +1642,7 @@ static void elan_ktf3k_ts_report_data(struct i2c_client *client, uint8_t *buf)
 {
 	struct elan_ktf3k_ts_data *ts = i2c_get_clientdata(client);
 	struct input_dev *idev = ts->input_dev;
-	uint16_t x, y, touch_size, pressure_size;
+	uint16_t x = 0, y = 0, touch_size, pressure_size;
 	uint16_t fbits=0, checksum=0;
 	uint8_t i, num;
 	static uint8_t size_index[10] = {35, 35, 36, 36, 37, 37, 38, 38, 39, 39};
@@ -1699,7 +1699,6 @@ static void elan_ktf3k_ts_report_data(struct i2c_client *client, uint8_t *buf)
 		touch_debug(DEBUG_ERROR, "[elan] Checksum Error %d byte[2]=%X\n",
 				checksum_err, buf[2]);
 	}
-
 	return;
 }
 
@@ -1746,6 +1745,12 @@ static void elan_ktf3k_ts_report_data2(struct i2c_client *client, uint8_t *buf)
 						"[elan] finger id=%d X=%d y=%d size=%d pressure=%d\n",
 							i, x, y, touch_size,
 							pressure_size);
+					/* sweep2wake */
+					if (s2w_switch || s2s_switch)
+						sweep2wake_func(x, y, jiffies, i);
+					if (dt2w_switch && scr_suspended)
+						doubletap2wake_func(x, y);
+					/* end sweep2wake */
 				}
 			}
 			mTouchStatus[i] = active;
