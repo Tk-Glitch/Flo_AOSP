@@ -126,8 +126,8 @@ static unsigned int gPrint_point;
 #define STRESS_IOCTL_START_NORMAL	1
 #define STRESS_IOCTL_END		0
 
-#define START_NORMAL			(HZ/5)
-#define START_HEAVY			(HZ/200)
+#define START_NORMAL			(HZ/15)
+#define START_HEAVY			(HZ/600)
 
 static int poll_mode;
 
