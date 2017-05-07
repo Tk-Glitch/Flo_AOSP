@@ -28,11 +28,26 @@ else
 fi
 fi
 
-#mpdecision service
+#mpdecision service for LineageOS bases
+if [ $(grep -c "mpdecision" /tmp/ramdisk/init.flo.power.rc) == 1 ]; then
 if [ "$HOTPLUGDRV" == "1" ]; then
   sed -i "s/.*mpdecision.*/    stop mpdecision/" /tmp/ramdisk/init.flo.power.rc
 else
   sed -i "s/.*mpdecision.*/    start mpdecision/" /tmp/ramdisk/init.flo.power.rc
+fi
+fi
+
+#mpdecision service for other bases #notelegant
+if [ $(grep -c "mpdecision" /tmp/ramdisk/init.flo.power.rc) == 0 ]; then
+if [ "$HOTPLUGDRV" == "1" ]; then
+if [ -e /system/bin/mpdecision ] ; then
+  mv /system/bin/mpdecision /system/bin/mpdecision_bck
+fi
+else
+if [ -e /system/bin/mpdecision_bck ] ; then
+  mv /system/bin/mpdecision_bck /system/bin/mpdecision
+fi
+fi
 fi
 
 #Start glitch script
