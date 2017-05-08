@@ -76,10 +76,10 @@ build ()
 {
 
     if [ "$type" = cm ] ; then
-    target_variant="-CM" #defines the flashable zip additional name (CM)
+    target_variant="-FixedInstall-CM" #defines the flashable zip additional name (CM)
     target_defconfig="Glitch_CM_$target_config" #defines the config to use for the build (CM)
     else
-    target_variant="" #defines the flashable zip additional name
+    target_variant="-FixedInstall" #defines the flashable zip additional name
     target_defconfig="Glitch_$target_config" #defines the config to use for the build
     fi
 
