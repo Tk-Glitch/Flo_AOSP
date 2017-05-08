@@ -2644,12 +2644,11 @@ config HAS_MACH_MEMUTILS
 	help
 	Faster memcpy performance for Krait
 
-config FORCE_FAST_CHARGE
-	bool "Force AC charge mode at will"
+config USBHOST
+	bool "USBHOST related runtime configuration"
 	default y
 	help
-	  A simple sysfs interface to force adapters that
-	  are detected as USB to charge as AC.
+	  A simple sysfs interface to allow switching between native OTG and Fixed-Installation mode.
 
 config MSM_LIMITER
 	bool "MSM Frequency Limiter Driver"
