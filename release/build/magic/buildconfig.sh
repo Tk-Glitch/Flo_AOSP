@@ -316,7 +316,7 @@ fi
 
 #MINFREQ
 MINF=`grep selected.5 /tmp/aroma/cpu.prop | cut -d '=' -f2`
-echo -e "\n\n##### Minimum CPU frequency (KHz) #####\n# 81000, 162000, 270000, 384000, 595000 or 810000 are valid frequencies.\n" >> $CONFIGFILE
+echo -e "\n\n##### Minimum CPU frequency (KHz) #####\n# 81000, 162000, 270000, 384000, 594000 or 810000 are valid frequencies.\n" >> $CONFIGFILE
 if [ "$MINF" = 1 ]; then
   echo "MINF=81000" >> $CONFIGFILE;
 elif [ "$MINF" = 2 ]; then
@@ -324,7 +324,7 @@ elif [ "$MINF" = 2 ]; then
 elif [ "$MINF" = 3 ]; then
   echo "MINF=270000" >> $CONFIGFILE;
 elif [ "$MINF" = 5 ]; then
-  echo "MINF=595000" >> $CONFIGFILE;
+  echo "MINF=594000" >> $CONFIGFILE;
 elif [ "$MINF" = 6 ]; then
   echo "MINF=810000" >> $CONFIGFILE;
 else
