@@ -28,6 +28,12 @@ else
 fi
 fi
 
+#remove governor overrides, use kernel default
+sed -i '/\/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
+sed -i '/\/sys\/devices\/system\/cpu\/cpu1\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
+sed -i '/\/sys\/devices\/system\/cpu\/cpu2\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
+sed -i '/\/sys\/devices\/system\/cpu\/cpu3\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
+
 #mpdecision service for LineageOS bases
 if [ $(grep -c "mpdecision" /tmp/ramdisk/init.flo.power.rc) == 1 ]; then
 if [ "$HOTPLUGDRV" == "1" ]; then
@@ -71,6 +77,7 @@ if [ !$(grep -qr "init.d" /tmp/ramdisk/*) ]; then
    echo "    user root" >> /tmp/ramdisk/init.rc
    echo "    group root" >> /tmp/ramdisk/init.rc
    echo "    seclabel u:r:init:s0" >> /tmp/ramdisk/init.rc
+   echo "    disabled" >> /tmp/ramdisk/init.rc
    echo "    oneshot" >> /tmp/ramdisk/init.rc
 fi
 fi
@@ -83,14 +90,21 @@ if [ $(grep -c "service synapse" /tmp/ramdisk/init.rc) == 0 ]; then
    echo "    user root" >> /tmp/ramdisk/init.rc
    echo "    group root" >> /tmp/ramdisk/init.rc
    echo "    seclabel u:r:init:s0" >> /tmp/ramdisk/init.rc
+   echo "    disabled" >> /tmp/ramdisk/init.rc
    echo "    oneshot" >> /tmp/ramdisk/init.rc
 fi
 
-#remove governor overrides, use kernel default
-sed -i '/\/sys\/devices\/system\/cpu\/cpu0\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
-sed -i '/\/sys\/devices\/system\/cpu\/cpu1\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
-sed -i '/\/sys\/devices\/system\/cpu\/cpu2\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
-sed -i '/\/sys\/devices\/system\/cpu\/cpu3\/cpufreq\/scaling_governor/d' /tmp/ramdisk/init.flo.rc
+#Restart GMS to fix memory leak and battery drain
+if [ $(grep -c "service glitch" /tmp/ramdisk/init.rc) == 0 ]; then
+   echo "" >> /tmp/ramdisk/init.rc
+   echo "service glitch /system/bin/sh /sbin/glitch.sh" >> /tmp/ramdisk/init.rc
+   echo "    class late_start" >> /tmp/ramdisk/init.rc
+   echo "    user root" >> /tmp/ramdisk/init.rc
+   echo "    group root" >> /tmp/ramdisk/init.rc
+   echo "    seclabel u:r:init:s0" >> /tmp/ramdisk/init.rc
+   echo "    disabled" >> /tmp/ramdisk/init.rc
+   echo "    oneshot" >> /tmp/ramdisk/init.rc
+fi
 
 #restore fstab backup if any to prevent overwriting the original with the backup coming next
 if [ -f "/tmp/ramdisk/fstab.orig" ]; then
@@ -155,11 +169,13 @@ fi
 
 #copy synapse & glitch scripts
 cp /tmp/init.glitch.rc /tmp/ramdisk/init.glitch.rc
-chmod 755 /tmp/ramdisk/init.glitch.rc
+chmod 0755 /tmp/ramdisk/init.glitch.rc
+cp /tmp/glitch.sh /tmp/ramdisk/sbin/glitch.sh
+chmod 0755 /tmp/ramdisk/sbin/glitch.sh
 cp -r /tmp/synapse /tmp/ramdisk/res/synapse
-chmod -R 755 /tmp/ramdisk/res/synapse
+chmod -R 0755 /tmp/ramdisk/res/synapse
 cp /tmp/synapse/uci /system/xbin/uci
-chmod 755 /system/xbin/uci
+chmod 0755 /system/xbin/uci
 
 #repack
 find . | cpio -o -H newc | gzip > /tmp/initrd.img
