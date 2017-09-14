@@ -21,7 +21,8 @@
 	#export CROSS_PREFIX="Linaro-arm-eabi-5.2.0/bin/arm-eabi-"
 	#export CROSS_PREFIX="gcc-linaro-5.3-2016.02-x86_64_arm-eabi/bin/arm-eabi-"
 	#export CROSS_PREFIX="gcc-linaro-6.3.1-2017.05-x86_64_arm-eabi/bin/arm-eabi-"
-	export CROSS_PREFIX="gcc-linaro-7.1.1-2017.05-x86_64_arm-eabi/bin/arm-eabi-"
+	#export CROSS_PREFIX="gcc-linaro-7.1.1-2017.05-x86_64_arm-eabi/bin/arm-eabi-"
+    export CROSS_PREFIX="gcc-linaro-7.1.1-2017.08-x86_64_arm-eabi/bin/arm-eabi-"
 	#export CROSS_PREFIX="gcc-linaro-4.9-2016.02-x86_64_arm-eabi/bin/arm-eabi-"
 
 # -------darwin-x86
