@@ -1604,7 +1604,7 @@ static void update_power_source(void)
 				HDMI_POWER_SOURCE_CMD);
 	else
 		elan_ktf3k_ts_set_power_source(private_ts->client,
-				power_source != USB_NO_Cable);
+                1);
 }
 
 void touch_callback(unsigned cable_status)
@@ -2458,7 +2458,7 @@ static int elan_ktf3k_ts_probe(struct i2c_client *client,
 		touch_debug(DEBUG_INFO, "[ELAN]misc_register finished!!");
 
 	update_power_source();
-
+    elan_ktf3k_ts_rough_calibrate(client);
 	return 0;
 
 err_input_register_device_failed:
@@ -2537,6 +2537,7 @@ static int elan_ktf3k_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 	if(((!s2w_switch && !dt2w_switch) || (lid_suspend && lid_closed) || (pwrkey_suspend && pwr_key_pressed)) && work_lock == 0) {
 		pwr_key_pressed = 0;
 		lid_closed = 0;
+        rc = elan_ktf3k_ts_rough_calibrate(client);
 		rc = elan_ktf3k_ts_set_power_state(client, PWR_STATE_DEEP_SLEEP);
 	}
 /*s2w*/
