@@ -61,12 +61,12 @@ l2_opt="l2_opt="$L2_OC;
 vdd_uv="vdd_uv="$UV_LEVEL;
 null="abc"
 
-#Permissive Selinux
-if [ "$PERMISSIVE" == "1" ]; then
+#Permissive Selinux - Force for now on O
+#if [ "$PERMISSIVE" == "1" ]; then
   echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M enforcing=0 androidboot.selinux=permissive" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
-else
-  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
-fi
+#else
+#  echo "cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=flo user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 vmalloc=340M" $l2_opt $vdd_uv $null >> /tmp/cmdline.cfg
+#fi
 
 ####################################################################
 
