@@ -170,6 +170,7 @@ static int __fw_packet_handler(struct i2c_client *client, int imediate);
 static int elan_ktf3k_ts_rough_calibrate(struct i2c_client *client);
 static int elan_ktf3k_ts_hw_reset(struct i2c_client *client, unsigned int time);
 static int elan_ktf3k_ts_resume(struct i2c_client *client);
+static void update_power_source(void);
 
 static int firmware_update_header(struct i2c_client *client,
 			unsigned char *firmware, unsigned int page_number);
@@ -213,6 +214,7 @@ static int s2w_switch = 15;
 static int s2w_switch_temp = 15;
 static int s2w_changed = 0;
 static int s2s_switch = 1;
+static int parrot_mod = 0;
 
 static int s2w_begin_v = 150;
 static int s2w_end_v = 1200;
@@ -993,6 +995,32 @@ static ssize_t elan_ktf3k_doubletap2wake_dump(struct device *dev, struct device_
 static DEVICE_ATTR(doubletap2wake, (S_IWUSR|S_IRUGO),
 	elan_ktf3k_doubletap2wake_show, elan_ktf3k_doubletap2wake_dump); 
 
+static ssize_t elan_ktf3k_parrot_mod_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	size_t count = 0;
+	count += sprintf(buf, "%d\n", parrot_mod);
+
+	return count;
+}
+
+static ssize_t elan_ktf3k_parrot_mod_dump(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+	int val;
+	sscanf(buf, "%d ", &val);
+	if (val < 0 || val > 1)
+		val = 0;
+
+	if (parrot_mod != val) {
+		parrot_mod = val;
+		update_power_source();
+	}
+
+	return count;
+}
+
+static DEVICE_ATTR(parrot_mod, (S_IWUSR|S_IRUGO),
+	elan_ktf3k_parrot_mod_show, elan_ktf3k_parrot_mod_dump);
+
 /* end sweep2wake sysfs*/
 
 static int check_fw_version(const unsigned char *firmware, unsigned int size,
@@ -1090,6 +1118,7 @@ static struct attribute *elan_attr[] = {
 	&dev_attr_pwrkey_suspend.attr,
 	&dev_attr_lid_suspend.attr,
 	&dev_attr_orientation.attr,
+	&dev_attr_parrot_mod.attr,
 	NULL
 };
 
@@ -1151,6 +1180,11 @@ static int elan_ktf3k_touch_sysfs_init(void)
 		touch_debug(DEBUG_ERROR, "[elan]%s: sysfs_create_group failed\n", __func__);
 		return ret;
 	}
+	ret = sysfs_create_file(android_touch_kobj, &dev_attr_parrot_mod.attr);
+	if (ret) {
+		touch_debug(DEBUG_ERROR, "[elan]%s: sysfs_create_group failed\n", __func__);
+		return ret;
+	}
 	return 0 ;
 }
 
@@ -1167,6 +1201,7 @@ static void elan_touch_sysfs_deinit(void)
 	sysfs_remove_file(android_touch_kobj, &dev_attr_pwrkey_suspend.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_lid_suspend.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_orientation.attr);
+	sysfs_remove_file(android_touch_kobj, &dev_attr_parrot_mod.attr);
 	kobject_del(android_touch_kobj);
 }
 
@@ -1599,12 +1634,15 @@ static void update_power_source(void)
 	if (private_ts == NULL || work_lock)
 		return;
 
-	if (power_source == SLIM_HDMI_MODE)
-		elan_ktf3k_ts_set_power_source(private_ts->client,
-				HDMI_POWER_SOURCE_CMD);
-	else
-		elan_ktf3k_ts_set_power_source(private_ts->client,
-				power_source != USB_NO_Cable);
+	if (power_source == SLIM_HDMI_MODE) {
+		elan_ktf3k_ts_set_power_source(private_ts->client, HDMI_POWER_SOURCE_CMD);
+	} else {
+		elan_ktf3k_ts_set_power_source(private_ts->client, power_source != USB_NO_Cable);
+		if (parrot_mod)
+			elan_ktf3k_ts_set_power_source(private_ts->client, 1);
+		else
+			elan_ktf3k_ts_set_power_source(private_ts->client, power_source != USB_NO_Cable);
+	}
 }
 
 void touch_callback(unsigned cable_status)
@@ -2458,6 +2496,7 @@ static int elan_ktf3k_ts_probe(struct i2c_client *client,
 		touch_debug(DEBUG_INFO, "[ELAN]misc_register finished!!");
 
 	update_power_source();
+	elan_ktf3k_ts_rough_calibrate(client);
 
 	return 0;
 
@@ -2537,6 +2576,11 @@ static int elan_ktf3k_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 	if(((!s2w_switch && !dt2w_switch) || (lid_suspend && lid_closed) || (pwrkey_suspend && pwr_key_pressed)) && work_lock == 0) {
 		pwr_key_pressed = 0;
 		lid_closed = 0;
+        
+	if(parrot_mod && work_lock == 0) {
+	    rc = elan_ktf3k_ts_rough_calibrate(client);
+	}
+
 		rc = elan_ktf3k_ts_set_power_state(client, PWR_STATE_DEEP_SLEEP);
 	}
 /*s2w*/
