@@ -360,7 +360,8 @@ checkbox(
   "Enable max suspend frequency","",1,
   "Enable max MC power savings","",0,
   "Enable Permissive SELinux","",0,
-  "Disable fsync","Faster i/o, but slight risk of data loss",0
+  "Disable fsync","Faster i/o, but slight risk of data loss",0,
+  "Enable ParrotMod","Fixes some touchscreen issues like ghost touches or unresponsiveness",1
 );
 
 if file_getprop("/tmp/aroma/misc.prop","item.0.5") == "1"

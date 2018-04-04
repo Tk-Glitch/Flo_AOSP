@@ -86,6 +86,9 @@ echo "write /sys/kernel/mm/ksm/deferred_timer 1" >> $INIT
 echo "write /sys/kernel/mm/ksm/run 1" >> $INIT
 echo "" >> $INIT
 
+#ParrotMod
+echo "write /sys/android_touch/parrot_mod" $PARROT >> $INIT
+
 #S2W
 echo "write /sys/android_touch/sweep2wake" $S2W >> $INIT
 

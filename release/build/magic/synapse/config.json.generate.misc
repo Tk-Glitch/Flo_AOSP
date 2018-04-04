@@ -62,6 +62,18 @@ cat << CTAG
 						}
 					}},'
 			fi`
+			`if [ -f "/sys/android_touch/parrot_mod" ]; then
+			PARROT=\`$BB cat /sys/android_touch/parrot_mod\`
+				$BB echo '{ SPane:{
+				title:"ParrotMod"
+				}},
+					{ SCheckBox:{
+						label:"Enable",
+						description:"Fixes ghost touches and touchscreen responsiveness issues on some N7 2013.",
+						default:'$PARROT',
+						action:"generic /sys/android_touch/parrot_mod"
+					}},'
+			fi`
 			`if [ -f "/sys/android_touch/doubletap2wake" ]; then
 			DT2W=\`$BB cat /sys/android_touch/doubletap2wake\`
 				$BB echo '{ SPane:{

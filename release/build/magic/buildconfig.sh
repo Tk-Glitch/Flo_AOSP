@@ -97,6 +97,16 @@ else
   echo "FSYNC=0" >> $CONFIGFILE;
 fi
 
+#Parrot Mod
+PARROT=`grep "item.0.9" /tmp/aroma/misc.prop | cut -d '=' -f2`
+echo -e "\n\n##### Enable ParrotMod #####\n# 0 to disable" >> $CONFIGFILE
+echo -e "# 1 to enable\n" >> $CONFIGFILE
+if [ $PARROT = 1 ]; then
+  echo "PARROT=1" >> $CONFIGFILE;
+else
+  echo "PARROT=0" >> $CONFIGFILE;
+fi
+
 #GESTURES
 echo -e "\n\n##### DT2W/S2W/S2S & related options #####\n" >> $CONFIGFILE
 if [ ! -e /tmp/aroma/gest.prop ]; then
