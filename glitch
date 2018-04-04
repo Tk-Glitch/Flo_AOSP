@@ -169,6 +169,8 @@ cp $target_dir/arch/arm/boot/zImage $KERNEL_DIR/release/build/restore/magic/glit
 cp -r $KERNEL_DIR/release/build/META-INF-restore $KERNEL_DIR/release/build/restore/META-INF
 cp -r $KERNEL_DIR/release/build/system $KERNEL_DIR/release/build/restore/system
 
+#Date
+export LC_ALL=C
 echo "Setting date & version in Aroma conf ("$(date +%B)" "$(date +%e)" "$(date +%Y)"),"
 
 if [ "$type" = cm ] ; then
